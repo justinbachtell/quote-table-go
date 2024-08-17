@@ -1,0 +1,29 @@
+{{define "base"}}
+<!doctype html>
+<html lang='en'>
+    <head>
+        <meta charset='utf-8'>
+        <title>{{template "title" .}} - Quote Table</title>
+        <link rel='stylesheet' href='/static/css/twoutput.css'>
+        <link rel='stylesheet' href='/static/css/base/general.css'>
+        <link rel='shortcut icon' href='/static/img/favicon.ico' type='image/x-icon'>
+        <link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700'>
+    </head>
+    <body class="h-full w-full bg-white dark:bg-black overflow-y-scroll line-height-1.5">
+        <header class="container py-4">
+            {{template "nav" .}}
+        </header>
+        <main class="flex flex-col min-h-[calc(100vh-345px)] overflow-auto bg-gray-100 dark:bg-gray-800 border-t border-b border-gray-300 dark:border-gray-600">
+            <div id="mobile-nav-menu-overlay" class="hidden absolute left-0 top-[3.5rem] flex w-full h-full bg-black bg-opacity-50 bg-blur-sm z-[1000]"></div>
+            {{with .Flash}}
+            <div class="container mx-auto mt-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded-md">
+                {{.}}
+            </div>
+            {{end}}
+            {{template "main" .}}
+        </main>
+        {{template "footer" .}}
+        <script src='/static/js/main.js' type='text/javascript'></script>
+    </body>
+</html>
+{{end}}

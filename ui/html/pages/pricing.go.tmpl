@@ -1,0 +1,53 @@
+{{define "title"}}Pricing{{end}}
+
+{{define "main"}}
+<div class="container flex flex-col w-full items-center justify-start gap-6 min-h-screen py-8 px-4 sm:px-6 lg:px-8">
+    <h1 class="text-3xl font-bold text-gray-800 dark:text-gray-200 mb-8">Subscription Plans</h1>
+    
+    <div class="flex flex-col lg:flex-row w-full items-center lg:items-start justify-center gap-6">
+        <!-- Free Plan -->
+        <div class="flex flex-col items-center justify-between w-full max-w-md py-8 px-12 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg shadow-md">
+            <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-200">Free</h2>
+            <p class="text-4xl font-bold text-gray-800 dark:text-gray-200">$0 <span class="text-lg font-normal">/ month</span></p>
+            <p class="text-gray-600 dark:text-gray-400 mt-4">All accounts let you explore popular quotations from books, and view a variety of publicly shared quotations from your choice of books.</p>
+            <ul class="list-disc list-outside ml-4 mr-auto text-gray-600 dark:text-gray-400 mt-4">
+                <li>Explore popular quotations</li>
+                <li>Search books and authors</li>
+            </ul>
+            <button class="mt-6 mx-auto px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-md">Current plan</button>
+        </div>
+
+        <!-- Premium Plan -->
+        <div class="flex flex-col items-center justify-between w-full max-w-md py-8 px-12 bg-green-50 dark:bg-green-900 border border-gray-300 dark:border-gray-600 rounded-lg shadow-md">
+            <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-200">Premium</h2>
+            <p class="text-4xl font-bold text-gray-800 dark:text-gray-2000">$3 <span class="text-lg font-normal">/ month</span></p>
+            <p class="text-gray-600 dark:text-gray-400 mt-4">Help me continue to support this project and improve it!</p>
+            <ul class="list-disc list-outside ml-4 mr-auto text-gray-600 dark:text-gray-400 mt-4">
+                <li>Everything in Free</li>
+                <li>Create and add quotations</li>
+                <li>Save your favorite quotations</li>
+                <li>Create custom books</li>
+                <li>Create custom authors</li>
+                <li>Store public or private quotations</li>
+                <li>Save your favorite books</li>
+                <li>Save your favorite authors</li>
+            </ul>
+            <button class="mt-6 mx-auto px-4 py-2 bg-green-500 dark:bg-green-700 text-white rounded-md">Subscribe</button>
+        </div>
+
+        <!-- Supporter Plan -->
+        <div class="flex flex-col items-center justify-between w-full max-w-md py-8 px-12 bg-purple-50 dark:bg-purlple-900 border border-gray-300 dark:border-gray-600 rounded-lg shadow-md">
+            <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-200">Supporter</h2>
+            <p class="text-4xl font-bold text-gray-800 dark:text-gray-200">$6+ <span class="text-lg font-normal">/ month</span></p>
+            <p class="text-gray-600 dark:text-gray-400 mt-4">You love this project and want to show your appreciation and dedication to it!</p>
+            <ul class="list-disc list-outside ml-4 mr-auto text-gray-600 dark:text-gray-400 mt-4">
+                <li>Everything in Premium</li>
+                <li>Early access to new features</li>
+                <li>Your own spot on the supporter wall (coming soon)</li>
+                <li>My sincere appreciation</li>
+            </ul>
+            <button class="mt-6 mx-auto px-4 py-2 bg-purple-500 dark:bg-purple-700 text-white rounded-md">Subscribe</button>
+        </div>
+    </div>
+</div>
+{{end}}

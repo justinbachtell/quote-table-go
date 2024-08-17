@@ -1,0 +1,33 @@
+{{define "title"}}User Profile{{end}}
+
+{{define "main"}}
+<div class="min-h-screen bg-gray-100 dark:bg-gray-900">
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold mb-6 text-gray-800 dark:text-white">User Profile</h1>
+
+        <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
+            {{with .User}}
+                <div class="mb-6">
+                    <h2 class="text-2xl font-semibold text-gray-800 dark:text-white">{{.Name}}</h2>
+                    <p class="text-gray-600 dark:text-gray-400">{{.Email}}</p>
+                </div>
+
+                <div class="mb-6">
+                    <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-white">Member Since</h3>
+                    <p class="text-gray-600 dark:text-gray-400">{{.Created | humanDate}}</p>
+                </div>
+
+                {{if eq .ID $.AuthenticatedUserID}}
+                    <div class="mt-6">
+                        <a href="/user/profile/edit" class="bg-black dark:bg-gray-800 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline hover:bg-gray-700 dark:hover:bg-gray-600 transition duration-300">
+                            Edit Profile
+                        </a>
+                    </div>
+                {{end}}
+            {{else}}
+                <p class="text-gray-600 dark:text-gray-400">User not found.</p>
+            {{end}}
+        </div>
+    </div>
+</div>
+{{end}}

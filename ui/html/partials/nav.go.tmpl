@@ -1,0 +1,80 @@
+{{define "nav"}}
+<nav class="flex bg-white dark:bg-black">
+    <div class="block lg:flex lg:flex-row lg:justify-between items-center w-full">
+        <div class="block float-left lg:flex items-center">
+            <a href="/" class="flex flex-row items-center gap-2 text-black text-md font-bold hover:text-gray-500 dark:text-white dark:hover:text-gray-300"><img src="/static/img/logo.png" alt="Quote Table Logo" class="logo-img w-7 h-7" />Quote Table</a>
+        </div>
+        <div class="flex items-center hidden lg:flex">
+            <ul class="flex flex-row items-center gap-4">
+                {{if not .IsAuthenticated}}
+                    <li class="flex items-center"><a href="/" class="p-2 rounded-md text-black hover:text-gray-500 dark:text-white dark:hover:text-gray-300">Explore</a></li>
+                    <li class="flex items-center"><a href="/pricing" class="p-2 rounded-md text-black hover:text-gray-500 dark:text-white dark:hover:text-gray-300">Pricing</a></li>
+                    <li class="flex items-center"><a href="https://justinbachtell.com/" target="_blank" rel="noopener noreferrer" class="p-2 rounded-md text-black hover:text-gray-500 dark:text-white dark:hover:text-gray-300">Contact</a></li>
+                {{else}}
+                    <li class="flex items-center"><a href="/" class="p-2 rounded-md text-black hover:text-gray-500 dark:text-white dark:hover:text-gray-300">Quotes</a></li>
+                    <li class="flex items-center"><a href="/books" class="p-2 rounded-md text-black hover:text-gray-500 dark:text-white dark:hover:text-gray-300">Books</a></li>
+                    <li class="flex items-center"><a href="/authors" class="p-2 rounded-md text-black hover:text-gray-500 dark:text-white dark:hover:text-gray-300">Authors</a></li>
+                    <li class="flex items-center"><a href="/user/favorites" class="p-2 rounded-md text-black hover:text-gray-500 dark:text-white dark:hover:text-gray-300">Favorites</a></li>
+                {{end}}
+            </ul>
+        </div>
+        <div class="flex items-center hidden lg:flex">
+            <ul class="flex flex-row items-center gap-4">
+                {{if not .IsAuthenticated}}
+                    <li><a href="/user/signup" class="px-6 py-2 rounded-md bg-white text-black hover:text-gray-500 dark:text-white dark:hover:text-gray-300 dark:bg-gray-800 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600">Sign up</a></li>
+                    <li><a href="/user/login" class="px-6 py-2 rounded-md bg-black text-white hover:bg-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700">Log in</a></li>
+                {{else}}
+                    <li>{{if .User}}<a href="/user/profile/{{.User.ID}}" class="px-6 py-2 rounded-md bg-white text-black hover:text-gray-500 dark:text-white dark:hover:text-gray-300 dark:bg-gray-800 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600">Profile</a>{{end}}</li>
+                    <li>
+                        <form action="/user/logout" method="POST">
+                            <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+                            <button type="submit" class="flex w-full justify-center p-2 rounded-md bg-black text-white hover:bg-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700">Log out</button>
+                        </form>
+                    </li>
+                {{end}}
+            </ul>
+        </div>
+        <div class="block float-right lg:hidden">
+            <input type="checkbox" id="mobile-nav-toggle" class="hidden">
+            <label for="mobile-nav-toggle" class="flex flex-col items-center justify-center bg-black text-white p-1 rounded-md hover:bg-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700 gap-[3px] cursor-pointer text-white">
+                <svg id="hamburger-icon" class="flex" width="1.5rem" height="1.5rem" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" clip-rule="evenodd" d="M4 5C3.44772 5 3 5.44772 3 6C3 6.55228 3.44772 7 4 7H20C20.5523 7 21 6.55228 21 6C21 5.44772 20.5523 5 20 5H4ZM7 12C7 11.4477 7.44772 11 8 11H20C20.5523 11 21 11.4477 21 12C21 12.5523 20.5523 13 20 13H8C7.44772 13 7 12.5523 7 12ZM13 18C13 17.4477 13.4477 17 14 17H20C20.5523 17 21 17.4477 21 18C21 18.5523 20.5523 19 20 19H14C13.4477 19 13 18.5523 13 18Z" fill="currentColor"/>
+                </svg>
+                <svg id="close-icon" class="hidden" width="1.5rem" height="1.5rem" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20.7457 3.32851C20.3552 2.93798 19.722 2.93798 19.3315 3.32851L12.0371 10.6229L4.74275 3.32851C4.35223 2.93798 3.71906 2.93798 3.32854 3.32851C2.93801 3.71903 2.93801 4.3522 3.32854 4.74272L10.6229 12.0371L3.32856 19.3314C2.93803 19.722 2.93803 20.3551 3.32856 20.7457C3.71908 21.1362 4.35225 21.1362 4.74277 20.7457L12.0371 13.4513L19.3315 20.7457C19.722 21.1362 20.3552 21.1362 20.7457 20.7457C21.1362 20.3551 21.1362 19.722 20.7457 19.3315L13.4513 12.0371L20.7457 4.74272C21.1362 4.3522 21.1362 3.71903 20.7457 3.32851Z" fill="currentColor"/>
+                </svg>
+            </label>
+        </div>
+    </div>
+    <div id="mobile-nav-menu" class="invisible fixed flex flex-row justify-end overflow-hidden top-[3.5rem] left-[100%] w-full h-full transition-all duration-300 z-[1001] border-t border-gray-300 dark:border-gray-600">
+        <div class="flex flex-col w-2/3 max-w-[20rem] items-center justify-between gap-4 px-4 bg-white dark:bg-gray-900 rounded-l-lg">
+            <div class="flex flex-col items-center justify-center gap-4 w-full pt-16 pb-8">
+                <ul class="flex flex-col items-center justify-center gap-4">
+                    <li><a href="/" class="p-2 rounded-md text-black hover:text-gray-500 dark:text-white dark:hover:text-gray-300">Explore</a></li>
+                    <li><a href="/" class="p-2 rounded-md text-black hover:text-gray-500 dark:text-white dark:hover:text-gray-300">Pricing</a></li>
+                    <li><a href="/" class="p-2 rounded-md text-black hover:text-gray-500 dark:text-white dark:hover:text-gray-300">Contact</a></li>
+                    {{if .IsAuthenticated}}
+                        <li><a href="/quote/create" class="p-2 rounded-md text-black hover:text-gray-500 dark:text-white dark:hover:text-gray-300">Create Quote</a></li>
+                    {{end}}
+                </ul>
+            </div>
+            <div class="flex flex-col items-center justify-center gap-4 w-full pb-[33%]">
+                <ul class="flex flex-col items-center justify-center gap-4 w-full">
+                    {{if not .IsAuthenticated}}
+                        <li class="flex w-full"><a href="/user/signup" class="flex w-full justify-center p-2 rounded-md bg-white text-black hover:text-gray-500 dark:text-white dark:hover:text-gray-300 dark:bg-gray-800 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600">Sign up</a></li>
+                        <li class="flex w-full"><a href="/user/login" class="flex w-full justify-center p-2 rounded-md bg-black text-white hover:bg-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700">Log in</a></li>
+                    {{else}}
+                        <li class="flex w-full">{{if .User}}<a href="/user/profile/{{.User.ID}}" class="flex w-full justify-center p-2 rounded-md bg-white text-black hover:text-gray-500 dark:text-white dark:hover:text-gray-300 dark:bg-gray-800 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600">Profile</a>{{end}}</li>
+                        <li class="flex w-full">
+                            <form action="/user/logout" method="POST" class="flex w-full justify-center">
+                                <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+                                <button type="submit" class="flex w-full justify-center p-2 rounded-md bg-black text-white hover:bg-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700">Log out</button>
+                            </form>
+                        </li>
+                    {{end}}
+                </ul>
+            </div>
+        </div>
+    </div>
+</nav>
+{{end}}

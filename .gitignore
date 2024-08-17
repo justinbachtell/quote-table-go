@@ -1,0 +1,109 @@
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
+
+# Dependency directories (remove the comment below to include it)
+# vendor/
+
+# Go workspace file
+go.work
+
+# Compiled Object files, Static and Dynamic libs (Shared Objects)
+*.o
+*.a
+
+# Go specific
+/pkg/
+/bin/
+*.cgo1.go
+*.cgo2.c
+_cgo_defun.c
+_cgo_gotypes.go
+_cgo_export.*
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Log files
+*.log
+
+# Environment variables
+.env
+
+# Debug files
+debug
+
+# Project-specific build outputs
+/dist/
+
+# Temporary files
+tmp/
+temp/
+
+# Database files
+supabase/
+*.db
+*.sqlite
+
+# Configuration files that may contain sensitive information
+config.yaml
+config.json
+
+# Backup files
+*.bak
+
+# Cache directories
+.cache/
+
+# Node modules (if using any JavaScript tools)
+node_modules/
+
+# Go module cache
+/.go/
+
+# Go build and test cache
+/.cache/
+/.testcache/
+
+# Go coverage files
+coverage.txt
+coverage.html
+
+# Profiling files
+*.prof
+
+# Air live reload tool
+tmp/
+
+# Delve debugger output
+debug.test
+
+# GoLand debugger files
+.dlv/
+
+# TLS certificates
+tls/
+cert.pem
+key.pem
