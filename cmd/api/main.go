@@ -4,13 +4,14 @@ import (
 	"crypto/tls"
 	"database/sql"
 	"flag"
+	"fmt"
 	"html/template"
 	"log/slog"
 	"net/http"
 	"os"
 	"time"
 
-	"quotetable.com/internal/models"
+	"github.com/justinbachtell/quote-table-go/internal/models"
 
 	"github.com/alexedwards/scs/postgresstore"
 	"github.com/alexedwards/scs/v2"
@@ -20,8 +21,19 @@ import (
 	"github.com/supabase-community/supabase-go"
 )
 
+// Application version
+const version = "1.0.0"
+
+// Define a struct to hold the application configuration
+type config struct {
+	addr string
+	port int
+	env string
+}
+
 // Define struct to hold application-wide dependencies
 type application struct {
+	config        config
 	logger        *slog.Logger
 	quotes        models.QuoteModelInterface
 	users         models.UserModelInterface
@@ -32,8 +44,23 @@ type application struct {
 }
 
 func main() {
-	// Define command-line flag for the network address
-	addr := flag.String("addr", "127.0.0.1:4000", "HTTP network address")
+	// Define a new config instance
+	var cfg config
+
+	// Read the address from the command-line flag
+	flag.StringVar(&cfg.addr, "addr", "127.0.0.1", "HTTP network address")
+
+	// Read the port from the command-line flag
+	flag.IntVar(&cfg.port, "port", 4000, "HTTP server port")
+
+	// Read the environment from the command-line flag
+	flag.StringVar(&cfg.env, "env", "development", "Environment (staging|production)")
+
+	// Parse the command-line flags
+	flag.Parse()
+
+	/* // Define command-line flag for the network address
+	addr := flag.String("addr", "127.0.0.1:4000", "HTTP network address") */
 
 	// Parse the command-line flag
 	flag.Parse()
@@ -106,6 +133,7 @@ func main() {
 
 	// Initialize a new instance of application struct dependencies
 	app := &application{
+		config:        cfg,
 		logger:        logger,
 		quotes:        &models.QuoteModel{Client: client},
 		users:         &models.UserModel{Client: client},
@@ -119,19 +147,11 @@ func main() {
 	tlsConfig := &tls.Config{
 		CurvePreferences: []tls.CurveID{tls.X25519, tls.CurveP256},
 		MinVersion:       tls.VersionTLS13,
-		CipherSuites: []uint16{
-			tls.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
-			tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
-			tls.TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,
-			tls.TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,
-			tls.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
-			tls.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
-		},
 	}
 
 	// Initialize a new http server struct
 	srv := &http.Server{
-		Addr:    *addr,
+		Addr:    fmt.Sprintf("%s:%d", cfg.addr, cfg.port),
 		Handler: app.routes(),
 		ErrorLog: slog.NewLogLogger(logger.Handler(), slog.LevelError),
 		TLSConfig: tlsConfig,
@@ -141,7 +161,7 @@ func main() {
 	}
 
 	// Log the address the server is starting on
-	logger.Info("starting server", slog.String("addr", ":4000"))
+	logger.Info("starting server", slog.String("addr", fmt.Sprintf("%s:%d", cfg.addr, cfg.port)), slog.String("env", cfg.env))
 
 	// Call the listen and serve method on the http server struct
 	err = srv.ListenAndServeTLS("./tls/cert.pem", "./tls/key.pem")

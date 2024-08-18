@@ -8,8 +8,8 @@ import (
 	"strconv"
 	"time"
 
-	"quotetable.com/internal/models"
-	"quotetable.com/internal/validator"
+	"github.com/justinbachtell/quote-table-go/internal/models"
+	"github.com/justinbachtell/quote-table-go/internal/validator"
 )
 
 // Handler for the home page
@@ -588,4 +588,11 @@ func ping(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("OK"))
 	
 	r.Body = http.MaxBytesReader(w, r.Body, 100)
+}
+
+// Handler to return application health status
+func (app *application) healthCheck(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintln(w, "status: available")
+	fmt.Fprintf(w, "environment: %s\n", app.config.env)
+	fmt.Fprintf(w, "version: %s\n", version)
 }

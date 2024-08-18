@@ -13,7 +13,7 @@ import (
 	"testing"
 	"time"
 
-	"quotetable.com/internal/models/mocks"
+	"github.com/justinbachtell/quote-table-go/internal/models/mocks"
 
 	"github.com/alexedwards/scs/v2"
 	"github.com/go-playground/form/v4"

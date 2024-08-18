@@ -3,7 +3,7 @@ package mocks
 import (
 	"time"
 
-	"quotetable.com/internal/models"
+	"github.com/justinbachtell/quote-table-go/internal/models"
 )
 
 // A mock quote for testing

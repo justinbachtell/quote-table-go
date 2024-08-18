@@ -6,8 +6,8 @@ import (
 	"path/filepath"
 	"time"
 
-	"quotetable.com/internal/models"
-	"quotetable.com/ui"
+	"github.com/justinbachtell/quote-table-go/internal/models"
+	"github.com/justinbachtell/quote-table-go/ui"
 )
 
 // Define a struct to pass data to html templates

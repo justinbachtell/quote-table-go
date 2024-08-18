@@ -12,14 +12,14 @@ Quote Table is a Go-based web application for managing and displaying quotes. It
 
 ## 🛠️ Technology Stack
 
-- **Backend:** Go 1.22.5
+- **Backend:** Go 1.23.0
 - **Database:** Supabase (PostgreSQL)
 - **Frontend:** HTML templates with Go's `html/template` package, and HTMX
 - **CSS:** TailwindCSS with some custom CSS styles
 
 ## 📁 Project Structure
 
-- `cmd/web/`: Main application code
+- `cmd/api/`: Main application code
 - `internal/models/`: Database models and interfaces
 - `internal/validator/`: Input validation logic
 - `ui/`: HTML templates and static assets
@@ -34,7 +34,7 @@ Quote Table is a Go-based web application for managing and displaying quotes. It
    SUPABASE_KEY=your_supabase_api_key
    ```
 4. Run `go mod tidy` to install dependencies
-5. Start the application with `go run ./cmd/web` or run `air` to run a server with live reloads.
+5. Start the application with `go run ./cmd/api` or run `air` to run a server with live reloads.
 6. Start the TailwindCSS watcher with `./tailwindcss -i ui/static/css/twinput.css -o ui/static/css/twoutput.css --watch`
 7. Start the Sass watcher with `sass --watch ui/static/sass/globals.scss ui/static/css/globals.css --style compressed`
 8. Compile and minify the CSS for production with `./tailwindcss -i ui/static/css/twinput.css -o ui/static/css/twoutput.css --minify`
@@ -49,16 +49,19 @@ Quote Table is a Go-based web application for managing and displaying quotes. It
 |-----------|---------|-------------|
 | All Tests | `go test -v ./...` | Runs all tests in the project |
 | Short Tests | `go test -v -short ./...` | Skips long-running tests |
-| Unit & E2E Tests | `go test -v ./cmd/web` | Runs tests in the `cmd/web` package |
+| Unit & E2E Tests | `go test -v ./cmd/api` | Runs tests in the `cmd/api` package |
 | Integration Tests | `go test -v ./internal/models` | Runs tests in the `internal/models` package |
 
-> 💡 **Tip 1:** Use the `-v` flag for verbose output in all test commands.
-> 💡 **Tip 2:** Use the `-cover` flag to generate metrics for code test coverage.
-> 💡 **Tip 3:** Use the `-coverprofile=/tmp/profile.out` or `-covermode=count -coverprofile=/tmp/profile.out` flag to generate a detailed breakdown of code test coverage by method and function, and then view the coverage profile with either of the two commands:
->> `go tool cover -html=/tmp/profile.out` (visual)
->> `go tool cover -func=/tmp/profile.out` (terminal)
+- 💡 **Tip 1:** Use the `-v` flag for verbose output in all test commands.
+- 💡 **Tip 2:** Use the `-cover` flag to generate metrics for code test coverage.
+- 💡 **Tip 3:** Use the `-coverprofile=/tmp/profile.out` or `-covermode=count -coverprofile=/tmp/profile.out` flag to generate a detailed breakdown of code test coverage by method and function, and then view the coverage profile with either of the two commands:
+- - `go tool cover -html=/tmp/profile.out` (visual)
+- - `go tool cover -func=/tmp/profile.out` (terminal)
 
 ## 📚 API Documentation
+
+### Healthcheck
+- `GET /healthcheck`: Display the application status, environment, and version
 
 ### Quotes
 

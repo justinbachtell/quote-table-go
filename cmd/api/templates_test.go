@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"quotetable.com/internal/assert"
+	"github.com/justinbachtell/quote-table-go/internal/assert"
 )
 
 // Test the humanDate function

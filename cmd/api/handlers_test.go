@@ -5,7 +5,7 @@ import (
 	"net/url"
 	"testing"
 
-	"quotetable.com/internal/assert"
+	"github.com/justinbachtell/quote-table-go/internal/assert"
 )
 
 // Tests the ping route

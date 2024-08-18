@@ -1,7 +1,7 @@
 package mocks
 
 import (
-	"quotetable.com/internal/models"
+	"github.com/justinbachtell/quote-table-go/internal/models"
 )
 
 type UserModel struct {}

@@ -3,7 +3,7 @@ package main
 import (
 	"net/http"
 
-	"quotetable.com/ui"
+	"github.com/justinbachtell/quote-table-go/ui"
 
 	"github.com/justinas/alice"
 )
@@ -23,6 +23,8 @@ func (app *application) routes() http.Handler {
 	*/
 	// Create a middleware chain for dynamic routes
 	dynamic := alice.New(app.sessionManager.LoadAndSave, noSurf, app.authenticate)
+
+	mux.Handle("GET /healthcheck", dynamic.ThenFunc(app.healthCheck))
 
 	mux.Handle("GET /{$}", dynamic.ThenFunc(app.home))
 	mux.Handle("GET /quote/view/{id}", dynamic.ThenFunc(app.quoteView))

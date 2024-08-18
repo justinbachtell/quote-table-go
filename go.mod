@@ -1,6 +1,6 @@
-module quotetable.com // change to github repo -- github.com/justinbachtell/quotetable
+module github.com/justinbachtell/quote-table-go
 
-go 1.22.5
+go 1.23.0
 
 require (
 	github.com/alexedwards/scs/postgresstore v0.0.0-20240316134038-7e11d57e8885
