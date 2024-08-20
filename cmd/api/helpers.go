@@ -2,13 +2,16 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
-	"runtime/debug"
+	"strings"
 	"time"
 
 	"github.com/go-playground/form/v4"
+	"github.com/google/uuid"
 	"github.com/justinas/nosurf"
 )
 
@@ -38,23 +41,6 @@ func (app *application) render(w http.ResponseWriter, r *http.Request, status in
 	buf.WriteTo(w)
 }
 
-// Define a server error helper to log the error message and return a generic error message
-func (app *application) serverError(w http.ResponseWriter, r *http.Request, err error) {
-	var (
-		method = r.Method
-		uri    = r.URL.RequestURI()
-		trace  = string(debug.Stack())
-	)
-
-	app.logger.Error(err.Error(), "method", method, "uri", uri, "trace", trace)
-	http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-}
-
-// Define a client error helper to return a specific status code and message
-func (app *application) clientError(w http.ResponseWriter, status int) {
-	http.Error(w, http.StatusText(status), status)
-}
-
 // Returns a pointer to a templateData struct
 func (app *application) newTemplateData(r *http.Request) templateData {
     data := templateData{
@@ -65,13 +51,19 @@ func (app *application) newTemplateData(r *http.Request) templateData {
     }
 
     if data.IsAuthenticated {
-        userID := app.sessionManager.GetInt(r.Context(), "authenticatedUserID")
-        user, err := app.users.Get(userID)
-        if err == nil {
-            data.User = &user
-        } else {
-            app.logger.Error(err.Error())
-        }
+		userIdStr := app.sessionManager.GetString(r.Context(), "authenticatedUserID")
+		userId, err := uuid.Parse(userIdStr)
+		if err != nil {
+			app.logger.Error("Failed to parse the user ID", "error", err)
+		} else {
+			data.AuthenticatedUserID = userId
+			user, err := app.users.Get(userId)
+			if err == nil {
+				data.User = &user
+			} else {
+				app.logger.Error("Failed to get the user", "error", err)
+			}
+		}
     }
 
     return data
@@ -102,10 +94,93 @@ func (app *application) decodePostForm(r *http.Request, dst any) error {
 
 // Returns true if the current request is from an authenticated user
 func (app *application) isAuthenticated(r *http.Request) bool {
-	isAuthenticated, ok := r.Context().Value(isAuthenticatedContextKey).(bool)
-	if !ok {
-		return false
+	return app.sessionManager.Exists(r.Context(), "authenticatedUserID")
+}
+
+// Helper function to urlize a string
+func (app *application) urlize(s string) string {
+    // Convert to lowercase and replace spaces with hyphens
+    return strings.ReplaceAll(strings.ToLower(strings.TrimSpace(s)), " ", "-")
+}
+
+// Define a JSON envelope type
+type envelope map[string]any
+
+// Defines a helper to send a JSON response
+func (app *application) writeJSON(w http.ResponseWriter, status int, data envelope, headers http.Header) error {
+	// Encode the data to JSON
+	js, err := json.Marshal(data)
+	if err != nil {
+		return err
 	}
 
-	return isAuthenticated
+	// Append a newline to the JSON
+	js = append(js, '\n')
+
+	// Add the headers to the response
+	for key, value := range headers {
+		w.Header()[key] = value
+	}
+
+	// Add the content type header
+	w.Header().Set("Content-Type", "application/json")
+
+	// Write the status code to the response
+	w.WriteHeader(status)
+
+	// Write the JSON data to the response
+	w.Write(js)
+
+	return nil
+}
+
+// Defines a helper to render a JSON response and triage errors
+func (app *application) readJSON(w http.ResponseWriter, r *http.Request, dst any) error {
+	// Limit the request body size to 1MB
+	maxBytes := 1_048_576
+	r.Body = http.MaxBytesReader(w, r.Body, int64(maxBytes))
+
+	// Initialize a new decoder instance
+	dec := json.NewDecoder(r.Body)
+
+	// Disable the strict mode of the decoder
+	dec.DisallowUnknownFields()
+
+	// Decode the JSON request body into the destination
+	err := dec.Decode(dst)
+	if err != nil {
+		// If there is an error, triage the error
+		var syntaxError *json.SyntaxError
+		var unmarshalTypeError *json.UnmarshalTypeError
+		var invalidUnmarshalError *json.InvalidUnmarshalError
+		var maxBytesError *http.MaxBytesError
+
+		// Check if the error is of the expected type
+		switch {
+			case errors.As(err, &syntaxError):
+				return fmt.Errorf("body contains badly-formed JSON (at character %d)", syntaxError.Offset)
+			case errors.Is(err, io.ErrUnexpectedEOF):
+				return fmt.Errorf("body contains badly-formed JSON")
+			case errors.As(err, &unmarshalTypeError):
+				if unmarshalTypeError.Field != "" {
+					return fmt.Errorf("body contains incorrect JSON type for field %q", unmarshalTypeError.Field)
+				}
+				return fmt.Errorf("body contains incorrect JSON type (at character %d)", unmarshalTypeError.Offset)
+			case errors.Is(err, io.EOF):
+				return errors.New("body must not be empty")
+			case errors.As(err, &maxBytesError):
+				return fmt.Errorf("body must not be larger than %d bytes", maxBytesError.Limit)
+			case errors.As(err, &invalidUnmarshalError):
+				panic(err)
+			default:
+				return err
+		}
+	}
+
+	return nil
+}
+
+// Converts a string to a UUID
+func (app *application) convertStringToUUID(s string) (uuid.UUID, error) {
+	return uuid.Parse(s)
 }

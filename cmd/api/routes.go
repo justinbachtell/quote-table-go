@@ -14,6 +14,10 @@ func (app *application) routes() http.Handler {
 	// Initialize a new httprouter instance
 	router := httprouter.New()
 
+	// Custom 404/405 handlers
+	router.NotFound = http.HandlerFunc(app.notFoundResponse)
+	router.MethodNotAllowed = http.HandlerFunc(app.methodNotAllowedResponse)
+
 	// Register the static file server to serve embedded static files
 	router.Handler("GET", "/static/*filepath", http.FileServerFS(ui.Files))
 
@@ -51,7 +55,7 @@ func (app *application) routes() http.Handler {
 	router.Handler("POST", "/user/profile/edit", protected.ThenFunc(app.userEditProfilePost))
 	router.Handler("GET", "/user/profile/change-password", protected.ThenFunc(app.userChangePassword))
 	router.Handler("POST", "/user/profile/change-password", protected.ThenFunc(app.userChangePasswordPost))
-	router.Handler("GET", "/user/profile/view/:id", protected.ThenFunc(app.userProfileView))
+	router.Handler("GET", "/user/profile/view/:urlName", protected.ThenFunc(app.userProfileView))
 
 	// Create middleware chain with standard middleware for every request
 	standard := alice.New(app.recoverPanic, app.logRequest, commonHeaders)

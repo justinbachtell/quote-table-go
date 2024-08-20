@@ -1,33 +1,37 @@
 package mocks
 
 import (
+	"github.com/google/uuid"
 	"github.com/justinbachtell/quote-table-go/internal/models"
 )
 
 type UserModel struct {}
 
+// Set the authenticated user ID
+func (m *UserModel) SetAuthUserID(id uuid.UUID) {}
+
 // Insert a user
-func (m *UserModel) Insert(name, email, password string) error {
+func (m *UserModel) Insert(name, email, password string) (uuid.UUID, error) {
 	switch email {
 	case "duplicate@example.com":
-		return models.ErrDuplicateEmail
+		return uuid.Nil, models.ErrDuplicateEmail
 	default:
-		return nil
+		return uuid.New(), nil
 	}
 }
 
 // Authenticate a user
-func (m *UserModel) Authenticate(email, password string) (int, error) {
+func (m *UserModel) Authenticate(email, password string) (uuid.UUID, error) {
 	if email == "alice@example.com" && password == "pa$$word" {
-		return 1, nil
+		return uuid.New(), nil
 	}
-	return 0, models.ErrInvalidCredentials
+	return uuid.Nil, models.ErrInvalidCredentials
 }
 
 // Check if a user exists
-func (m *UserModel) Exists(id int) (bool, error) {
+func (m *UserModel) Exists(id uuid.UUID) (bool, error) {
 	switch id {
-	case 1:
+	case uuid.New():
 		return true, nil
 	default:
 		return false, nil
@@ -35,7 +39,7 @@ func (m *UserModel) Exists(id int) (bool, error) {
 }
 
 // Get user by id
-func (m *UserModel) Get(id int) (models.User, error) {
+func (m *UserModel) Get(id uuid.UUID) (models.User, error) {
 	return models.User{}, nil
 }
 
@@ -45,11 +49,16 @@ func (m *UserModel) GetByEmail(email string) (models.User, error) {
 }
 
 // Update user's name and email
-func (m *UserModel) Update(id int, name, email string) error {
+func (m *UserModel) Update(id uuid.UUID, name, email string) error {
 	return nil
 }
 
 // Change user's password
-func (m *UserModel) ChangePassword(id int, currentPassword, newPassword string) error {
+func (m *UserModel) ChangePassword(id uuid.UUID, currentPassword, newPassword string) error {
 	return nil
+}
+
+// Get user by URL name
+func (m *UserModel) GetByURLName(urlName string) (models.User, error) {
+	return models.User{}, nil
 }

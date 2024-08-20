@@ -168,7 +168,7 @@ func TestUserSignup(t *testing.T) {
 			userPassword: validPassword,
 			csrfToken:    validCSRFToken,
 			wantCode:     http.StatusUnprocessableEntity,
-			wantBody:     "This email address is already in use",
+			wantBody:     "Email address is already in use",
 		},
 	}
 

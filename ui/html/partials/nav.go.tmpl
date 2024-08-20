@@ -21,14 +21,14 @@
         <div class="flex items-center hidden lg:flex">
             <ul class="flex flex-row items-center gap-4">
                 {{if not .IsAuthenticated}}
-                    <li><a href="/user/signup" class="px-6 py-2 rounded-md bg-white text-black hover:text-gray-500 dark:text-white dark:hover:text-gray-300 dark:bg-gray-800 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600">Sign up</a></li>
-                    <li><a href="/user/login" class="px-6 py-2 rounded-md bg-black text-white hover:bg-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700">Log in</a></li>
+                    <li><a href="/user/signup" class="flex items-center px-6 py-2 rounded-md bg-white text-black hover:text-gray-500 dark:text-white dark:hover:text-gray-300 dark:bg-gray-800 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600">Sign up</a></li>
+                    <li><a href="/user/login" class="flex items-center px-6 py-2 rounded-md bg-black text-white hover:bg-gray-700 dark:bg-gray-800 dark:hover:bg-gray-7000">Log in</a></li>
                 {{else}}
-                    <li>{{if .User}}<a href="/user/profile/{{.User.ID}}" class="px-6 py-2 rounded-md bg-white text-black hover:text-gray-500 dark:text-white dark:hover:text-gray-300 dark:bg-gray-800 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600">Profile</a>{{end}}</li>
+                    <li>{{if .User}}<a href="/user/profile/view/{{.User.ProfileSlug}}" class="flex items-center px-6 py-2 rounded-md bg-white text-black hover:text-gray-500 dark:text-white dark:hover:text-gray-300 dark:bg-gray-800 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600">Profile</a>{{end}}</li>
                     <li>
                         <form action="/user/logout" method="POST">
                             <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
-                            <button type="submit" class="flex w-full justify-center p-2 rounded-md bg-black text-white hover:bg-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700">Log out</button>
+                            <button type="submit" class="flex items-center px-6 py-2 rounded-md bg-black text-white hover:bg-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700">Log out</button>
                         </form>
                     </li>
                 {{end}}
@@ -64,7 +64,7 @@
                         <li class="flex w-full"><a href="/user/signup" class="flex w-full justify-center p-2 rounded-md bg-white text-black hover:text-gray-500 dark:text-white dark:hover:text-gray-300 dark:bg-gray-800 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600">Sign up</a></li>
                         <li class="flex w-full"><a href="/user/login" class="flex w-full justify-center p-2 rounded-md bg-black text-white hover:bg-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700">Log in</a></li>
                     {{else}}
-                        <li class="flex w-full">{{if .User}}<a href="/user/profile/{{.User.ID}}" class="flex w-full justify-center p-2 rounded-md bg-white text-black hover:text-gray-500 dark:text-white dark:hover:text-gray-300 dark:bg-gray-800 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600">Profile</a>{{end}}</li>
+                        <li class="flex w-full">{{if .User}}<a href="/user/profile/view/{{.User.ProfileSlug}}" class="flex w-full justify-center p-2 rounded-md bg-white text-black hover:text-gray-500 dark:text-white dark:hover:text-gray-300 dark:bg-gray-800 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600">Profile</a>{{end}}</li>
                         <li class="flex w-full">
                             <form action="/user/logout" method="POST" class="flex w-full justify-center">
                                 <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">

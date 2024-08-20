@@ -8,17 +8,19 @@ import (
 	"strings"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/supabase-community/supabase-go"
 )
 
 // Define an interface for the QuoteModel
 type QuoteModelInterface interface {
-	Insert(quote string, author string) (int, error)
+	Insert(quote string, author string, userID uuid.UUID) (int, error)
 	Get(id int) (Quote, error)
 	Update(id int, quote string, author string) (int, error)
 	Latest() ([]Quote, error)
 	Exists(id int) (bool, error)
 	Delete(id int) error
+	SetAuthUserID(id uuid.UUID)
 }
 
 // Define a Quote struct to hold the quote data
@@ -26,12 +28,19 @@ type Quote struct {
 	ID      int       `json:"id"`
 	Quote   string    `json:"quote"`
 	Author  string    `json:"author"`
+	UserID  uuid.UUID `json:"user_id"`
 	Created time.Time `json:"created"`
 }
 
 // Define a QuoteModel struct to hold the database connection pool
 type QuoteModel struct {
 	Client *supabase.Client
+	AuthUserID uuid.UUID
+}
+
+// Set the authenticated user ID
+func (m *QuoteModel) SetAuthUserID(id uuid.UUID) {
+	m.AuthUserID = id
 }
 
 // Return a specific quote based on the ID
@@ -76,12 +85,13 @@ func (m *QuoteModel) Latest() ([]Quote, error) {
 }
 
 // Insert a new quote into the database
-func (m *QuoteModel) Insert(quote string, author string) (int, error) {
+func (m *QuoteModel) Insert(quote string, author string, userID uuid.UUID) (int, error) {
 	// Create a map to hold the quote data
 	data := map[string]interface{}{
 		"quote":   quote,
 		"author":  author,
 		"created": time.Now(),
+		"user_id": userID,
 	}
 
 	// Insert the quote into the database
@@ -96,7 +106,7 @@ func (m *QuoteModel) Insert(quote string, author string) (int, error) {
 
 	// Parse the JSON response to extract the ID
 	var insertedQuote []Quote
-	err = json.Unmarshal([]byte(response), &insertedQuote)
+	err = json.NewDecoder(strings.NewReader(string(response))).Decode(&insertedQuote)
 	if err != nil {
 		log.Printf("Error parsing JSON response: %v", err)
 		return 0, err
@@ -108,7 +118,7 @@ func (m *QuoteModel) Insert(quote string, author string) (int, error) {
 		return 0, errors.New("no quotes returned in response")
 	}
 
-	return insertedQuote[0].ID, nil
+	return int(insertedQuote[0].ID), nil
 }
 
 // Update a quote in the database
@@ -117,6 +127,7 @@ func (m *QuoteModel) Update(id int, quote string, author string) (int, error) {
 	data := map[string]interface{}{
 		"quote":   quote,
 		"author":  author,
+		"user_id": m.AuthUserID,
 	}
 
 	// Convert id to string
@@ -131,7 +142,7 @@ func (m *QuoteModel) Update(id int, quote string, author string) (int, error) {
 	
 	// Parse the JSON response
 	var updatedQuote []Quote
-	err = json.Unmarshal([]byte(response), &updatedQuote)
+	err = json.NewDecoder(strings.NewReader(string(response))).Decode(&updatedQuote)
 	if err != nil {
 		log.Printf("Error parsing JSON response: %v", err)
 		return 0, err
@@ -143,7 +154,7 @@ func (m *QuoteModel) Update(id int, quote string, author string) (int, error) {
 		return 0, errors.New("no quotes returned in response")
 	}
 
-	return updatedQuote[0].ID, nil
+	return int(updatedQuote[0].ID), nil
 }
 
 // Check if the quote exists
@@ -170,7 +181,7 @@ func (m *QuoteModel) Exists(id int) (bool, error) {
     var quotes []struct {
         ID int `json:"id"`
     }
-    err = json.Unmarshal([]byte(response), &quotes)
+    err = json.NewDecoder(strings.NewReader(string(response))).Decode(&quotes)
     if err != nil {
         return false, err
     }

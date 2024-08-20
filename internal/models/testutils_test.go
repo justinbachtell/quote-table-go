@@ -10,6 +10,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/supabase-community/supabase-go"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -56,7 +57,21 @@ func newTestDatabase(t *testing.T) *supabase.Client {
 
 	return db
 }
-	
+
+// Deletes all users from the database
+func cleanupTestUsers(t *testing.T, db *supabase.Client) {
+    t.Helper()
+    _, _, err := db.From("users").Delete("", "exact").Eq("email", "john.doe@example.com").Execute()
+    if err != nil {
+        t.Fatalf("Failed to clean up test user: %v", err)
+    }
+
+	_, _, err = db.From("users").Delete("", "exact").Eq("email", "jane.doe@example.com").Execute()
+	if err != nil {
+		t.Fatalf("Failed to clean up test user: %v", err)
+	}
+}
+
 // Connect to the supabase database
 func connectSupabase(logger *slog.Logger, supabaseURL string, supabaseKey string) (*supabase.Client, error) {
 	// Initialize supabase client
@@ -71,60 +86,66 @@ func connectSupabase(logger *slog.Logger, supabaseURL string, supabaseKey string
 }
 
 // Insert adds a new user to the database
-func InsertTestUser(db *supabase.Client, name, email, password string) (int, error) {
+func InsertTestUser(db *supabase.Client, name, email, password string) (string, error) {
+	// Check if user already exists
+    existingUser, count, err := db.From("users").Select("id", "exact", false).Eq("email", email).Single().ExecuteString()
+    if err == nil && count > 0 {
+        var user struct {
+            ID uuid.UUID `json:"id"`
+        }
+        err = json.NewDecoder(strings.NewReader(existingUser)).Decode(&user)
+        if err != nil {
+            return "", err
+        }
+        return user.ID.String(), nil
+    }
+
 	// Hash the password with the number of specified salt rounds
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), 12) // Default cost is 12
 	if err != nil {
-		return 0, err
+		return "", err
 	}
 
+    // Create a new UUID
+	newUUID := uuid.New()
+    
 	// Create a map to hold the user data
 	data := map[string]interface{}{
-		"name":            name,
-		"email":           email,
-		"hashed_password": hashedPassword,
-		"created":         time.Now(),
-	}
+        "id":              newUUID,
+        "name":            name,
+        "email":           email,
+        "hashed_password": hashedPassword,
+		"profile_slug":    strings.ReplaceAll(strings.ToLower(strings.TrimSpace(name)), " ", "-"),
+        "created":         time.Now(),
+    }
 
-	// Insert the user into the database and get the response
+    // Insert the user into the database
 	response, count, err := db.From("users").Insert(data, false, "", "", "").ExecuteString()
-	if err != nil {
-		if strings.Contains(err.Error(), "23505") {
-			// User already exists, fetch the existing user's ID
-			existingUser, _, err := db.From("users").Select("id", "exact", false).Eq("email", email).Single().ExecuteString()
-			if err != nil {
-				return 0, err
-			}
-			var user struct {
-				ID int `json:"id"`
-			}
-			err = json.Unmarshal([]byte(existingUser), &user)
-			if err != nil {
-				return 0, err
-			}
-			return user.ID, nil
-		}
-		return 0, err
-	} else if count > 1 {
-		log.Printf("Unexpected count > 1 for insert")
-		return 0, errors.New("unexpected count > 1 for insert")
-	}
-	
-	// Parse the JSON response to extract the ID
-	var insertedUser []User
-	err = json.Unmarshal([]byte(response), &insertedUser)
-	if err != nil {
-		log.Printf("Error parsing JSON response: %v", err)
-		return 0, err
+    if err != nil {
+        return "", err
+    }
+
+    if len(data) == 0 {
+		return "", errors.New("no user was inserted")
 	}
 
-	// Check if the user was successfully inserted
+    // Parse the JSON response to extract the ID
+    var insertedUser []struct {
+        ID uuid.UUID `json:"id"`
+    }
+
+	// Decode the JSON response
+    err = json.NewDecoder(strings.NewReader(response)).Decode(&insertedUser)
+    if err != nil {
+        return "", err
+    }
+
+    // Check if the user was successfully inserted
 	if len(insertedUser) == 0 {
-		log.Printf("No users returned in response")
-		return 0, errors.New("no users returned in response")
-	}
+        return "", errors.New("no user ID returned")
+    }
 
-	return insertedUser[0].ID, nil
+    return insertedUser[0].ID.String(), nil
 }
 
 // Insert a new quote into the database
@@ -148,7 +169,7 @@ func InsertTestQuote(db *supabase.Client, quote string, author string) (int, err
 
 	// Parse the JSON response to extract the ID
 	var insertedQuote []Quote
-	err = json.Unmarshal([]byte(response), &insertedQuote)
+	err = json.NewDecoder(strings.NewReader(string(response))).Decode(&insertedQuote)
 	if err != nil {
 		log.Printf("Error parsing JSON response: %v", err)
 		return 0, err
@@ -160,5 +181,5 @@ func InsertTestQuote(db *supabase.Client, quote string, author string) (int, err
 		return 0, errors.New("no quotes returned in response")
 	}
 
-	return insertedQuote[0].ID, nil
+	return int(insertedQuote[0].ID), nil
 }

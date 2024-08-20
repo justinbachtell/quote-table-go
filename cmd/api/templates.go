@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/justinbachtell/quote-table-go/internal/models"
 	"github.com/justinbachtell/quote-table-go/ui"
 )
@@ -20,7 +21,7 @@ type templateData struct {
     Flash       string
     IsAuthenticated bool
     CSRFToken   string
-    AuthenticatedUserID int
+    AuthenticatedUserID uuid.UUID
 }
 
 // Format the dates to be human readable

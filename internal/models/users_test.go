@@ -1,67 +1,66 @@
 package models
 
 import (
-	"strconv"
 	"testing"
+
+	"github.com/google/uuid"
 )
 
 func TestUserModelExists(t *testing.T) {
-	// Skip the test if the "-short" flag is passed
+    // Skip the test if the "-short" flag is passed
 	if testing.Short() {
-		t.Skip("models: skipping integration tests in short mode")
-	}
+        t.Skip("models: skipping integration tests in short mode")
+    }
 
-
-	// Set up a tests struct
-	tests := []struct {
-		name   string
-		userID int
-		want   bool
-	}{
-		{"Valid ID", -1, true}, // We'll replace -1 with the actual ID
-		{"Non-existent ID", 9999, false},
-		{"Zero ID", 0, false},
-		{"Negative ID", -1, false},
-	}
-
-	// Create a new test database once for all tests
+    // Create a new test database
 	db := newTestDatabase(t)
-
+    
 	// Create a new UserModel instance
-	m := UserModel{db}
+	m := UserModel{Client: db}
 
-	// Insert a test user and get the ID
-	testUserID, err := InsertTestUser(db, "Jane Doe", "jane.doe@example.com", "password123")
-	if err != nil {
-		t.Fatalf("Failed to insert test user: %v", err)
-	}
+    // Clean up before and after tests
+    cleanupTestUsers(t, db)
+    t.Cleanup(func() {
+        cleanupTestUsers(t, db)
+    })
 
-	// Replace the -1 in the "Valid ID" test with the actual ID
-	tests[0].userID = testUserID
+	// Insert a test user
+    testUser, err := InsertTestUser(db, "Jane Doe", "jane.doe@example.com", "password123")
+    if err != nil {
+        t.Fatalf("Failed to insert test user: %v", err)
+    }
 
-	// Loop through each test
+	// Parse the returned string ID directly
+	testUserID, err := uuid.Parse(testUser)
+    if err != nil {
+        t.Fatalf("Failed to parse test user ID: %v", err)
+    }
+
+    // Create an invalid UUID
+	invalidUUID := uuid.New()
+
+    // Define test cases
+	tests := []struct {
+        name   string
+        userID uuid.UUID
+        want   bool
+    }{
+        {"Valid ID", testUserID, true},
+        {"Invalid ID", invalidUUID, false},
+    }
+
+    // Loop through each test case
 	for _, tt := range tests {
+        // Run each test case
 		t.Run(tt.name, func(t *testing.T) {
-			// Call the Exists method to check if the user exists
+            // Check if the user exists
 			exists, err := m.Exists(tt.userID)
-
-			// Check for error first
-			if err != nil {
-				t.Fatalf("Error in Exists method: %v", err)
-			}
-
-			// Check if the result matches the expected value
-			if exists != tt.want {
-				t.Errorf("Test case %s failed: got %v, want %v", tt.name, exists, tt.want)
-			}
-		})
-	}
-
-	// Add cleanup function to delete the test user after all tests are run
-	t.Cleanup(func() {
-		_, _, err := db.From("users").Delete("", "exact").Eq("id", strconv.Itoa(testUserID)).Execute()
-		if err != nil {
-			t.Errorf("Failed to delete test user: %v", err)
-		}
-	})
+            if err != nil {
+                t.Fatalf("Error in Exists method: %v", err)
+            }
+            if exists != tt.want {
+                t.Errorf("Test case %s failed: got %v, want %v", tt.name, exists, tt.want)
+            }
+        })
+    }
 }

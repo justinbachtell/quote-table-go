@@ -3,6 +3,8 @@ package models
 import (
 	"strconv"
 	"testing"
+
+	"github.com/google/uuid"
 )
 
 func TestQuoteModelExists(t *testing.T) {
@@ -27,7 +29,7 @@ func TestQuoteModelExists(t *testing.T) {
 	db := newTestDatabase(t)
 
 	// Create a new QuoteModel instance
-	m := QuoteModel{db}
+	m := QuoteModel{Client: db}
 
 	// Insert a test quote and get the ID
 	testQuoteID, err := InsertTestQuote(db, "Test quote", "Test Author")
@@ -63,4 +65,42 @@ func TestQuoteModelExists(t *testing.T) {
 			t.Errorf("Failed to delete test quote: %v", err)
 		}
 	})
+}
+
+func TestQuoteModelSetAuthUserID(t *testing.T) {
+	// Skip the test if the "-short" flag is passed
+	if testing.Short() {
+		t.Skip("models: skipping integration tests in short mode")
+	}
+
+	// Create a new test database
+	db := newTestDatabase(t)
+
+	// Create a new QuoteModel instance
+	m := QuoteModel{Client: db}
+
+	// Create a new user
+	userID := uuid.New()
+
+	// Test cases
+	testCases := []struct {
+		name     string
+		userID   uuid.UUID
+		expected uuid.UUID
+	}{
+		{"Set valid user ID", userID, userID},
+		{"Set empty user ID", uuid.Nil, uuid.Nil},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			// Set the AuthUserID
+			m.SetAuthUserID(tc.userID)
+
+			// Check if the AuthUserID was set correctly
+			if m.AuthUserID != tc.expected {
+				t.Errorf("Expected AuthUserID to be %s, but got %s", tc.expected, m.AuthUserID)
+			}
+		})
+	}
 }

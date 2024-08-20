@@ -3,6 +3,7 @@ package mocks
 import (
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/justinbachtell/quote-table-go/internal/models"
 )
 
@@ -11,13 +12,17 @@ var mockQuote = models.Quote{
 	ID: 1,
 	Author: "John Doe",
 	Quote: "To be or not to be, that is the question",
+	UserID: uuid.New(),
 	Created: time.Now(),
 }
 
 type QuoteModel struct {}
 
+// Set the authenticated user ID
+func (m *QuoteModel) SetAuthUserID(id uuid.UUID) {}
+
 // Insert a quote
-func (m *QuoteModel) Insert(quote string, author string) (int, error) {
+func (m *QuoteModel) Insert(quote string, author string, userID uuid.UUID) (int, error) {
 	return 2, nil
 }
 

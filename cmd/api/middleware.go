@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/google/uuid"
 	"github.com/justinas/nosurf"
 )
 
@@ -54,13 +55,16 @@ func (app *application) recoverPanic(next http.Handler) http.Handler {
 // Requires authentication for all requests
 func (app *application) requireAuthentication(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// If the user is not authenticated, redirect them to the login page
 		if !app.isAuthenticated(r) {
 			http.Redirect(w, r, "/user/login", http.StatusSeeOther)
 			return
 		}
-		
-		// Prevent caching for authenticated routes
+
+		// Prevent caching in the user's browser
 		w.Header().Add("Cache-Control", "no-store")
+
+		// Call the next handler in the chain
 		next.ServeHTTP(w, r)
 	})
 }
@@ -79,14 +83,20 @@ func noSurf(next http.Handler) http.Handler {
 // Authenticates the user and adds the user to the request context
 func (app *application) authenticate(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Retrieve the auth id from the session
-		id := app.sessionManager.GetInt(r.Context(), "authenticatedUserID")
-		if id == 0 {
+		idStr := app.sessionManager.GetString(r.Context(), "authenticatedUserID")
+		if idStr == "" {
 			next.ServeHTTP(w, r)
 			return
 		}
 
-		// Check if the user exists in the database
+		// Parse the string as a UUID
+		id, err := uuid.Parse(idStr)
+		if err != nil {
+			app.serverError(w, r, err)
+			return
+		}
+
+		// Use the UUID to check if the user exists
 		exists, err := app.users.Exists(id)
 		if err != nil {
 			app.serverError(w, r, err)
@@ -95,8 +105,13 @@ func (app *application) authenticate(next http.Handler) http.Handler {
 
 		// If the user exists, add the user to the request context
 		if exists {
-			ctx := context.WithValue(r.Context(), isAuthenticatedContextKey, true)
+			// Set the actual user ID in the context
+			ctx := context.WithValue(r.Context(), isAuthenticatedContextKey, id)
 			r = r.WithContext(ctx)
+
+			// Update the UserModel and QuoteModel with the authenticated user ID
+			app.users.SetAuthUserID(id)
+			app.quotes.SetAuthUserID(id)
 		}
 
 		// Call the next handler

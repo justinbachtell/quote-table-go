@@ -3,6 +3,7 @@ package main
 import (
 	"crypto/tls"
 	"database/sql"
+	"encoding/gob"
 	"flag"
 	"fmt"
 	"html/template"
@@ -11,6 +12,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/justinbachtell/quote-table-go/internal/models"
 
 	"github.com/alexedwards/scs/postgresstore"
@@ -59,11 +61,8 @@ func main() {
 	// Parse the command-line flags
 	flag.Parse()
 
-	/* // Define command-line flag for the network address
-	addr := flag.String("addr", "127.0.0.1:4000", "HTTP network address") */
-
-	// Parse the command-line flag
-	flag.Parse()
+	// Register the UUID type with the gob package
+	gob.Register(uuid.UUID{})
 
 	// Create a new logger
 	logger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
@@ -130,13 +129,14 @@ func main() {
 	sessionManager.Store = postgresstore.New(db)
 	sessionManager.Lifetime = 12 * time.Hour
 	sessionManager.Cookie.Secure = true
+	sessionManager.Cookie.SameSite = http.SameSiteStrictMode
 
 	// Initialize a new instance of application struct dependencies
 	app := &application{
 		config:        cfg,
 		logger:        logger,
-		quotes:        &models.QuoteModel{Client: client},
-		users:         &models.UserModel{Client: client},
+		quotes:        &models.QuoteModel{Client: client, AuthUserID: uuid.Nil},
+		users:         &models.UserModel{Client: client, AuthUserID: uuid.Nil},
 		templateCache: templateCache,
 		client:        client,
 		sessionManager: sessionManager,
