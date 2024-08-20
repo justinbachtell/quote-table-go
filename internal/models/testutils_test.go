@@ -23,8 +23,8 @@ func newTestDatabase(t *testing.T) *supabase.Client {
 	}))
 
 	// Log the environment variables to check if they are loaded correctly
-	supabaseURL := "http://127.0.0.1:54321"
-	supabaseKey := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0"
+	supabaseURL := "http://127.0.0.1:54321" // local supabase url
+	supabaseKey := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0" // local supabase key
 
 	// Check if the environment variables are set
 	if supabaseURL == "" || supabaseKey == "" {
