@@ -36,6 +36,11 @@ func (m *QuoteModel) Get(id int) (models.Quote, error) {
 	}
 }
 
+// Get a quote by UserID
+func (m *QuoteModel) GetByUserID(userID uuid.UUID) ([]models.Quote, error) {
+	return []models.Quote{mockQuote}, nil
+}
+
 // Update a quote
 func (m *QuoteModel) Update(id int, quote string, author string) (int, error) {
 	return 2, nil

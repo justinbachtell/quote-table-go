@@ -7,7 +7,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/justinbachtell/quote-table-go/internal/models"
 	"github.com/justinbachtell/quote-table-go/internal/validator"
 )
@@ -16,7 +15,6 @@ import (
 type quoteCreateForm struct {
 	Quote string `form:"quote"`
 	Author string `form:"author"`
-	UserID uuid.UUID `form:"user_id"`
 	Created time.Time `form:"created"`
 	validator.Validator `form:"-"`
 }
@@ -55,9 +53,20 @@ func (app *application) quoteCreate(w http.ResponseWriter, r *http.Request) {
 
 // Handler to process and post the quote data
 func (app *application) quoteCreatePost(w http.ResponseWriter, r *http.Request) {
+	// Initialize the template data
+	data := app.newTemplateData(r)
+
+	// Fetch the authenticated user
+    user, err := app.users.Get(data.AuthenticatedUserID)
+    if err != nil {
+        app.serverError(w, r, err)
+        return
+    }
+
+	// Initialize the form
     var form quoteCreateForm
 
-    err := app.formDecoder.Decode(&form, r.PostForm)
+    err = app.formDecoder.Decode(&form, r.PostForm)
     if err != nil {
         app.logError(r, err)
         http.Error(w, err.Error(), http.StatusBadRequest)
@@ -75,7 +84,7 @@ func (app *application) quoteCreatePost(w http.ResponseWriter, r *http.Request) 
         return
     }
 
-    id, err := app.quotes.Insert(form.Quote, form.Author, form.UserID)
+    id, err := app.quotes.Insert(form.Quote, form.Author, user.ID)
     if err != nil {
 		app.logError(r, err)
         http.Error(w, err.Error(), http.StatusInternalServerError)

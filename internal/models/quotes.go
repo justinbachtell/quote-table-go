@@ -16,6 +16,7 @@ import (
 type QuoteModelInterface interface {
 	Insert(quote string, author string, userID uuid.UUID) (int, error)
 	Get(id int) (Quote, error)
+	GetByUserID(userID uuid.UUID) ([]Quote, error)
 	Update(id int, quote string, author string) (int, error)
 	Latest() ([]Quote, error)
 	Exists(id int) (bool, error)
@@ -69,6 +70,19 @@ func (m *QuoteModel) Get(id int) (Quote, error) {
 	return q, nil
 }
 
+// Return a list of quotes by user ID
+func (m *QuoteModel) GetByUserID(userID uuid.UUID) ([]Quote, error) {
+	var quotes []Quote
+	
+	_, err := m.Client.From("quotes").Select("*", "exact", false).Eq("user_id", userID.String()).Limit(10, "").ExecuteTo(&quotes)
+	if err != nil {
+		log.Printf("Error executing query: %v", err)
+		return nil, err
+	}
+
+	return quotes, nil
+}
+
 // Return a list of the 10 most recent quotes
 func (m *QuoteModel) Latest() ([]Quote, error) {
 	var quotes []Quote
@@ -80,7 +94,7 @@ func (m *QuoteModel) Latest() ([]Quote, error) {
 	}
 
 	// Return the slice of quotes
-	log.Printf("Retrieved quotes: %+v", quotes)
+	// log.Printf("Retrieved quotes: %+v", quotes)
 	return quotes, nil
 }
 

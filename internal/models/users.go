@@ -291,3 +291,22 @@ func (m *UserModel) GetByURLName(urlName string) (User, error) {
 	// Return the user
 	return user, nil
 }
+
+// Get user's id from URL name
+func (m *UserModel) GetIDFromURLName(urlName string) (uuid.UUID, error) {
+	// Query the database for the user with the given URL name
+	response, _, err := m.Client.From("users").Select("id", "exact", false).Eq("profile_slug", urlName).Single().ExecuteString()
+	if err != nil {
+		return uuid.Nil, err
+	}
+
+	// Decode the response
+	var user User
+	err = json.NewDecoder(strings.NewReader(string(response))).Decode(&user)
+	if err != nil {
+		return uuid.Nil, err
+	}
+
+	// Return the user
+	return user.ID, nil
+}
