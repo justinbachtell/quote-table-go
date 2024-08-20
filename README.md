@@ -84,3 +84,25 @@ Quote Table is a Go-based web application for managing and displaying quotes. It
 - `POST /user/profile/edit`: Edit the user's profile
 - `GET /user/profile/change-password`: View the change password form
 - `POST /user/profile/change-password`: Edit the user's password
+
+## Contributing
+
+Contributions are welcome! Please open an issue if you have any questions or suggestions. Your contributions will be acknowledged. See the [contributing guide](./CONTRIBUTING.md) for more information.
+
+## Contributors
+
+Thanks goes to these wonderful people for their contributions:
+
+<p align="center">
+<a href="https://github.com/justinbachtell/quote-table-go/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=justinbachtell/quote-table-go" />
+</a>
+</p>
+
+<p align="center">
+ Made with <a rel="noopener noreferrer" target="_blank" href="https://contrib.rocks">contrib.rocks</a>
+</p>
+
+## License
+
+Licensed under the MIT License. Check the [LICENSE](./LICENSE.md) file for details.
