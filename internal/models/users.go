@@ -18,7 +18,7 @@ type UserModelInterface interface {
 	Insert(name, email, password string) (uuid.UUID, error)
 	Authenticate(email string, password string) (uuid.UUID, error)
 	Exists(id uuid.UUID) (bool, error)
-	Update(id uuid.UUID, name, email string) error
+	Update(id uuid.UUID, name, email, phone string) error
 	ChangePassword(id uuid.UUID, currentPassword, newPassword string) error
 	// Delete(id uuid.UUID) error
 	Get(id uuid.UUID) (User, error)
@@ -32,15 +32,20 @@ type User struct {
 	ID        uuid.UUID    `json:"id"`
 	Name      string    `json:"name"`
 	Email     string    `json:"email"`
+	EmailVerifiedAt time.Time `json:"email_verified_at"`
 	Password  []byte    `json:"-"`
 	ProfileSlug string `json:"profile_slug"`
-	Created   time.Time `json:"created"`
-	Updated   time.Time `json:"updated"`
+	Phone       string `json:"phone"`
+	PhoneVerifiedAt time.Time `json:"phone_verified_at"`
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
+	LastLoginAt time.Time `json:"last_signed_in_at"`
 }
 
 // The model used in the connection pool
 type UserModel struct {
 	Client *supabase.Client
+	AuthClient *supabase.Client
 	AuthUserID uuid.UUID
 }
 
@@ -63,11 +68,12 @@ func (m *UserModel) Insert(name, email, password string) (uuid.UUID, error) {
         "email":           email,
         "hashed_password": string(hashedPassword),
 		"profile_slug":    strings.ReplaceAll(strings.ToLower(strings.TrimSpace(name)), " ", "-"),
-        "created":         time.Now(),
+        "created_at":         time.Now(),
+		"updated_at":         time.Now(),
     }
 
 	// Insert the user into the database
-    response, _, err := m.Client.From("users").Insert(data, false, "", "", "").ExecuteString()
+    response, _, err := m.AuthClient.From("users").Insert(data, false, "", "", "").ExecuteString()
     if err != nil {
         // Check if the error is due to a duplicate email
         if strings.Contains(err.Error(), "users_uc_email") {
@@ -104,7 +110,7 @@ func (m *UserModel) Insert(name, email, password string) (uuid.UUID, error) {
 // Authenticate verifies the user's email and password.
 func (m *UserModel) Authenticate(email string, password string) (uuid.UUID, error) {
 	// Query the database for the user with the given email
-	response, count, err := m.Client.From("users").Select("*", "exact", false).Eq("email", email).Single().ExecuteString()
+	response, count, err := m.AuthClient.From("users").Select("*", "exact", false).Eq("email", email).Single().ExecuteString()
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) || strings.Contains(err.Error(), "PGRST116")  {
 			return uuid.Nil, ErrInvalidCredentials
@@ -123,10 +129,14 @@ func (m *UserModel) Authenticate(email string, password string) (uuid.UUID, erro
 		ID              uuid.UUID       `json:"id"`
 		Name            string    `json:"name"`
 		Email           string    `json:"email"`
+		EmailVerifiedAt time.Time `json:"email_verified_at"`
 		HashedPassword  string    `json:"hashed_password"`
 		ProfileSlug     string    `json:"profile_slug"`
-		Created         time.Time `json:"created_at"`
-		Updated         time.Time `json:"updated"`
+		Phone           string `json:"phone"`
+		PhoneVerifiedAt bool `json:"phone_verified_at"`
+		CreatedAt         time.Time `json:"created_at"`
+		UpdatedAt         time.Time `json:"updated_at"`
+		LastLoginAt     time.Time `json:"last_signed_in_at"`
 	}
 
 	err = json.NewDecoder(strings.NewReader(string(response))).Decode(&tempUser)
@@ -151,7 +161,7 @@ func (m *UserModel) Authenticate(email string, password string) (uuid.UUID, erro
 // Check if the user exists
 func (m *UserModel) Exists(id uuid.UUID) (bool, error) {
     // Query the database for the user with the given id
-    response, count, err := m.Client.From("users").Select("id", "exact", false).Eq("id", id.String()).ExecuteString()
+    response, count, err := m.AuthClient.From("users").Select("id", "exact", false).Eq("id", id.String()).ExecuteString()
     if err != nil {
         if strings.Contains(err.Error(), "PGRST116") {
             // No rows returned
@@ -181,7 +191,7 @@ func (m *UserModel) Exists(id uuid.UUID) (bool, error) {
 // Get user by id
 func (m *UserModel) Get(id uuid.UUID) (User, error) {
 	// Query the database for the user with the given id
-	response, count, err := m.Client.From("users").Select("*", "exact", false).Eq("id", id.String()).Single().ExecuteString()
+	response, count, err := m.AuthClient.From("users").Select("*", "exact", false).Eq("id", id.String()).Single().ExecuteString()
 	if err != nil {
 		return User{}, err
 	}
@@ -202,7 +212,7 @@ func (m *UserModel) Get(id uuid.UUID) (User, error) {
 // Get user by email
 func (m *UserModel) GetByEmail(email string) (User, error) {
 	// Query the database for the user with the given email
-	_, _, err := m.Client.From("users").Select("name, email", "exact", false).Eq("email", email).Single().ExecuteString()
+	_, _, err := m.AuthClient.From("users").Select("name, email", "exact", false).Eq("email", email).Single().ExecuteString()
 	if err != nil {
 		return User{}, err
 	}
@@ -211,17 +221,42 @@ func (m *UserModel) GetByEmail(email string) (User, error) {
 	return User{}, nil
 }
 
-// Update user's name and email
-func (m *UserModel) Update(id uuid.UUID, name, email string) error {
+// Update user's info
+func (m *UserModel) Update(id uuid.UUID, name, email, phone string) error {
 	// Create a map to hold the user data
 	data := map[string]interface{}{
 		"name":  name,
 		"email": email,
 		"profile_slug":    strings.ReplaceAll(strings.ToLower(strings.TrimSpace(name)), " ", "-"),
+		"phone": phone,
+		"updated_at":         time.Now(),
+	}
+
+	// Check if the phone is verified
+	response, _, err := m.AuthClient.From("users").Select("phone, phone_verified_at", "exact", false).Eq("id", id.String()).Single().ExecuteString()
+	if err != nil {
+		return err
+	}
+
+	// If phone is different than data["phone"], delete the phone verification
+	var currentUser struct {
+		Phone string `json:"phone"`
+		PhoneVerifiedAt *time.Time `json:"phone_verified_at"`
+	}
+	err = json.NewDecoder(strings.NewReader(response)).Decode(&currentUser)
+	if err != nil {
+		return err
+	}
+
+	if phone != currentUser.Phone {
+		_, _, err = m.AuthClient.From("users").Update(map[string]interface{}{"phone_verified_at": nil}, "", "").Eq("id", id.String()).ExecuteString()
+		if err != nil {
+			return err
+		}
 	}
 
 	// Update the user in the database
-	_, _, err := m.Client.From("users").Update(data, "", "").Eq("id", id.String()).ExecuteString()
+	_, _, err = m.AuthClient.From("users").Update(data, "", "").Eq("id", id.String()).ExecuteString()
 	if err != nil {
 		return err
 	}
@@ -233,7 +268,7 @@ func (m *UserModel) Update(id uuid.UUID, name, email string) error {
 // ChangePassword updates the user's password in the database
 func (m *UserModel) ChangePassword(id uuid.UUID, currentPassword, newPassword string) error {
 	// Get the current user data
-	response, count, err := m.Client.From("users").Select("*", "exact", false).Eq("id", id.String()).Single().ExecuteString()
+	response, count, err := m.AuthClient.From("users").Select("*", "exact", false).Eq("id", id.String()).Single().ExecuteString()
 	if err != nil {
 		return err
 	}
@@ -263,9 +298,10 @@ func (m *UserModel) ChangePassword(id uuid.UUID, currentPassword, newPassword st
 	// Update the password in the database
 	data := map[string]interface{}{
 		"hashed_password": hashedPassword,
+		"updated_at":         time.Now(),
 	}
 
-	_, _, err = m.Client.From("users").Update(data, "", "").Eq("id", id.String()).ExecuteString()
+	_, _, err = m.AuthClient.From("users").Update(data, "", "").Eq("id", id.String()).ExecuteString()
 	if err != nil {
 		return err
 	}
@@ -276,7 +312,7 @@ func (m *UserModel) ChangePassword(id uuid.UUID, currentPassword, newPassword st
 // Get user by URL name
 func (m *UserModel) GetByURLName(urlName string) (User, error) {
 	// Query the database for the user with the given URL name
-	response, _, err := m.Client.From("users").Select("*", "exact", false).Eq("profile_slug", urlName).Single().ExecuteString()
+	response, _, err := m.AuthClient.From("users").Select("*", "exact", false).Eq("profile_slug", urlName).Single().ExecuteString()
 	if err != nil {
 		return User{}, err
 	}
@@ -295,7 +331,7 @@ func (m *UserModel) GetByURLName(urlName string) (User, error) {
 // Get user's id from URL name
 func (m *UserModel) GetIDFromURLName(urlName string) (uuid.UUID, error) {
 	// Query the database for the user with the given URL name
-	response, _, err := m.Client.From("users").Select("id", "exact", false).Eq("profile_slug", urlName).Single().ExecuteString()
+	response, _, err := m.AuthClient.From("users").Select("id", "exact", false).Eq("profile_slug", urlName).Single().ExecuteString()
 	if err != nil {
 		return uuid.Nil, err
 	}

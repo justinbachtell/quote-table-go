@@ -5,6 +5,9 @@ import "regexp"
 // EmailRX is a regular expression for validating email addresses
 var EmailRX = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
 
+// PhoneRX is a regular expression for validating phone numbers
+var PhoneRX = regexp.MustCompile("^[0-9]{10}$")
+
 // ValidateSignupForm validates the user signup form
 func ValidateSignupForm(v *Validator, name, email, password string) {
     ValidateName(v, name)
@@ -19,9 +22,10 @@ func ValidateLoginForm(v *Validator, email, password string) {
 }
 
 // ValidateProfileForm validates the user profile form
-func ValidateProfileForm(v *Validator, name, email string) {
+func ValidateProfileForm(v *Validator, name, email, phone string) {
     ValidateName(v, name)
     ValidateEmail(v, email)
+    ValidatePhone(v, phone)
 }
 
 // ValidateChangePasswordForm validates the change password form
@@ -47,6 +51,14 @@ func ValidateEmail(v *Validator, email string) {
     v.CheckField(MaxChars(email, 255), "email", "The email field is too long (max. 255 characters).")
     v.CheckField(MinChars(email, 5), "email", "The email field is too short (min. 5 characters).")
     v.CheckField(Matches(email, EmailRX), "email", "The email field is not a valid email address.")
+}
+
+// ValidatePhone validates the user's phone
+func ValidatePhone(v *Validator, phone string) {
+    v.CheckField(NotBlank(phone), "phone", "The phone field cannot be blank.")
+    v.CheckField(MaxChars(phone, 15), "phone", "The phone field is too long (max. 15 characters).")
+    v.CheckField(MinChars(phone, 10), "phone", "The phone field is too short (min. 10 characters).")
+    v.CheckField(Matches(phone, PhoneRX), "phone", "The phone field is not a valid phone number.")
 }
 
 // ValidatePassword validates the user's password

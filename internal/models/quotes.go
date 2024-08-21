@@ -30,7 +30,7 @@ type Quote struct {
 	Quote   string    `json:"quote"`
 	Author  string    `json:"author"`
 	UserID  uuid.UUID `json:"user_id"`
-	Created time.Time `json:"created"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
 // Define a QuoteModel struct to hold the database connection pool
@@ -104,7 +104,7 @@ func (m *QuoteModel) Insert(quote string, author string, userID uuid.UUID) (int,
 	data := map[string]interface{}{
 		"quote":   quote,
 		"author":  author,
-		"created": time.Now(),
+		"created_at": time.Now(),
 		"user_id": userID,
 	}
 

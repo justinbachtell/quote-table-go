@@ -113,12 +113,13 @@ func (app *application) userLoginPost(w http.ResponseWriter, r *http.Request) {
     id, err := app.users.Authenticate(form.Email, form.Password)
     if err != nil {
         if errors.Is(err, models.ErrInvalidCredentials) {
-            form.AddNonFieldError("Email or password is incorrect")
+            form.AddNonFieldError("Authentication failed. Please check your credentials and try again.")
 
             data := app.newTemplateData(r)
             data.Form = form
             app.render(w, r, http.StatusUnprocessableEntity, "login.go.tmpl", data)
         } else {
+            app.logger.Error("Failed to authenticate user", "error", err)
             app.serverError(w, r, err)
         }
         return
@@ -222,6 +223,7 @@ func (app *application) userEditProfile(w http.ResponseWriter, r *http.Request) 
 type userProfileForm struct {
     Name     string `form:"name"`
     Email    string `form:"email"`
+	Phone    string `form:"phone"`
     validator.Validator
 }
 
@@ -245,14 +247,14 @@ func (app *application) userEditProfilePost(w http.ResponseWriter, r *http.Reque
     // Validate the form data
 	validator.ValidateName(&form.Validator, form.Name)
 	validator.ValidateEmail(&form.Validator, form.Email)
-
+	validator.ValidatePhone(&form.Validator, form.Phone)
     if !form.ValidField() {
         data.Form = form
         app.render(w, r, http.StatusUnprocessableEntity, "edit-profile.go.tmpl", data)
         return
     }
 
-    err = app.users.Update(data.User.ID, form.Name, form.Email)
+    err = app.users.Update(data.User.ID, form.Name, form.Email, form.Phone)
     if err != nil {
         app.serverError(w, r, err)
         return

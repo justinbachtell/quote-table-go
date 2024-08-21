@@ -13,7 +13,7 @@ var mockQuote = models.Quote{
 	Author: "John Doe",
 	Quote: "To be or not to be, that is the question",
 	UserID: uuid.New(),
-	Created: time.Now(),
+	CreatedAt: time.Now(),
 }
 
 type QuoteModel struct {}
