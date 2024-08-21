@@ -41,6 +41,7 @@ type application struct {
 	users         models.UserModelInterface
 	templateCache map[string]*template.Template
 	client        *supabase.Client
+	authClient    *supabase.Client
 	formDecoder   *form.Decoder
 	sessionManager *scs.SessionManager
 }
@@ -78,10 +79,11 @@ func main() {
 	// Log the environment variables to check if they are loaded correctly
 	supabaseURL := os.Getenv("SUPABASE_URL")
 	supabaseKey := os.Getenv("SUPABASE_PUBLIC_KEY")
+	supabaseSecretKey := os.Getenv("SUPABASE_SECRET_KEY")
 	supabaseURIString := os.Getenv("SUPABASE_URI_STRING")
 
 	// Check if the environment variables are set
-	if supabaseURL == "" || supabaseKey == "" {
+	if supabaseURL == "" || supabaseKey == "" || supabaseSecretKey == "" {
 		logger.Error("database environment variables are not set")
 		os.Exit(1)
 	}
@@ -104,12 +106,12 @@ func main() {
 	}()
 
 	// Initialize supabase client
-	client, err := connectSupabase(logger, supabaseURL, supabaseKey)
+	client, authClient, err := connectSupabase(logger, supabaseURL, supabaseKey, supabaseSecretKey)
 	if err != nil {
 		logger.Error(err.Error())
 		os.Exit(1)
 	} else {
-		logger.Info("connected to database for rest api")
+		logger.Info("connected to database for rest and auth api")
 	}
 
 	// TODO; close the supabase client when the main function returns and print a message
@@ -136,9 +138,10 @@ func main() {
 		config:        cfg,
 		logger:        logger,
 		quotes:        &models.QuoteModel{Client: client, AuthUserID: uuid.Nil},
-		users:         &models.UserModel{Client: client, AuthUserID: uuid.Nil},
+		users:         &models.UserModel{Client: client, AuthClient: authClient, AuthUserID: uuid.Nil},
 		templateCache: templateCache,
 		client:        client,
+		authClient:    authClient,
 		sessionManager: sessionManager,
 		formDecoder:   formDecoder,
 	}
@@ -172,14 +175,21 @@ func main() {
 }
 
 // Connect to the supabase database
-func connectSupabase(logger *slog.Logger, supabaseURL string, supabaseKey string) (*supabase.Client, error) {
+func connectSupabase(logger *slog.Logger, supabaseURL string, supabaseKey string, supabaseSecretKey string) (*supabase.Client, *supabase.Client, error) {
 	// Initialize supabase client
 	client, err := supabase.NewClient(supabaseURL, supabaseKey, nil)
 	if err != nil {
 		logger.Error("error connecting to the database for rest api")
-		return nil, err
+		return nil, nil, err
+	}
+
+	// Initialize supabase auth client
+	authClient, err := supabase.NewClient(supabaseURL, supabaseSecretKey, nil)
+	if err != nil {
+		logger.Error("error connecting to the database for auth api")
+		return nil, nil, err
 	}
 
     // Return the connection is successful
-    return client, nil
+    return client, authClient, nil
 }

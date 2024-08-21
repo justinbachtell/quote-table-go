@@ -25,13 +25,29 @@
                     {{end}}
                 </div>
 
+                <div>
+                    <label for="phone" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Phone</label>
+                    <input type="tel" name="phone" id="phone" value="{{.Form.Phone}}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                    {{with .Form.FieldErrors.phone}}
+                        <p class="mt-2 text-sm text-red-600 dark:text-red-400">{{.}}</p>
+                    {{end}}
+                </div>
+
                 <div class="flex justify-between items-center">
                     <button type="submit" class="py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-black hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                         Update Profile
                     </button>
-                    <a href="/user/profile/change-password" class="py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600 dark:border-gray-600">
-                        Change Password
-                    </a>
+                    <div class="space-x-2">
+                        <a href="/user/profile/verify-email" class="py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600 dark:border-gray-600">
+                            Verify Email
+                        </a>
+                        <a href="/user/profile/verify-phone" class="py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600 dark:border-gray-600">
+                            Verify Phone
+                        </a>
+                        <a href="/user/profile/change-password" class="py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600 dark:border-gray-600">
+                            Change Password
+                        </a>
+                    </div>
                 </div>
             </form>
         </div>

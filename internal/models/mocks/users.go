@@ -49,7 +49,7 @@ func (m *UserModel) GetByEmail(email string) (models.User, error) {
 }
 
 // Update user's name and email
-func (m *UserModel) Update(id uuid.UUID, name, email string) error {
+func (m *UserModel) Update(id uuid.UUID, name, email, phone string) error {
 	return nil
 }
 

@@ -15,7 +15,7 @@ import (
 type quoteCreateForm struct {
 	Quote string `form:"quote"`
 	Author string `form:"author"`
-	Created time.Time `form:"created"`
+	CreatedAt time.Time `form:"created_at"`
 	validator.Validator `form:"-"`
 }
 

@@ -10,11 +10,20 @@
                 <div class="mb-6">
                     <h2 class="text-2xl font-semibold text-gray-800 dark:text-white">{{.Name}}</h2>
                     <p class="text-gray-600 dark:text-gray-400">{{.Email}}</p>
+                    <p class="text-gray-600 dark:text-gray-400">{{.Phone}}</p>
+                    <div class="mt-2">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{if not .EmailVerifiedAt.IsZero}}bg-green-100 text-green-800{{else}}bg-red-100 text-red-800{{end}}">
+                            Email: {{if not .EmailVerifiedAt.IsZero}}Verified{{else}}Not Verified{{end}}
+                        </span>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{if not .PhoneVerifiedAt.IsZero}}bg-green-100 text-green-800{{else}}bg-red-100 text-red-800{{end}}">
+                            Phone: {{if not .PhoneVerifiedAt.IsZero}}Verified{{else}}Not Verified{{end}}
+                        </span>
+                    </div>
                 </div>
 
                 <div class="mb-6">
                     <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-white">Member Since</h3>
-                    <p class="text-gray-600 dark:text-gray-400">{{.Created | humanDate}}</p>
+                    <p class="text-gray-600 dark:text-gray-400">{{.CreatedAt | humanDate}}</p>
                 </div>
 
                 {{if eq .ID $.AuthenticatedUserID}}

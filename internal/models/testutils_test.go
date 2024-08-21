@@ -116,7 +116,8 @@ func InsertTestUser(db *supabase.Client, name, email, password string) (string, 
         "email":           email,
         "hashed_password": hashedPassword,
 		"profile_slug":    strings.ReplaceAll(strings.ToLower(strings.TrimSpace(name)), " ", "-"),
-        "created":         time.Now(),
+        "created_at":         time.Now(),
+		"updated_at":         time.Now(),
     }
 
     // Insert the user into the database
@@ -154,7 +155,7 @@ func InsertTestQuote(db *supabase.Client, quote string, author string) (int, err
 	data := map[string]interface{}{
 		"quote":   quote,
 		"author":  author,
-		"created": time.Now(),
+		"created_at": time.Now(),
 	}
 
 	// Insert the quote into the database

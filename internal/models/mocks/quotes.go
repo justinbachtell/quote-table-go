@@ -11,9 +11,9 @@ import (
 var mockQuote = models.Quote{
 	ID: 1,
 	Author: "John Doe",
-	Quote: "To be or not to be, that is the question",
+	Quote: "To be or not to be, that is the question.",
 	UserID: uuid.New(),
-	Created: time.Now(),
+	CreatedAt: time.Now(),
 }
 
 type QuoteModel struct {}
