@@ -16,6 +16,7 @@ import (
 type BookModelInterface interface {
 	Insert(title string, publishYear int, calendarTime string, isbn string, source string) (int, error)
 	Get(id int) (Book, error)
+	GetByAuthorID(authorID int) ([]Book, error)
 	GetAllWithAuthors() ([]Book, error)
 	Update(id int, title string, publishYear int, calendarTime string, isbn string, source string) error
 	Delete(id int) error
@@ -36,6 +37,7 @@ type Book struct {
 	CreatedAt    time.Time `json:"created_at"`
 	UpdatedAt    time.Time `json:"updated_at"`
 	Author       Author    `json:"author"`
+	Quotes       []Quote   `json:"quotes"`
 }
 
 // The model used in the connection pool
@@ -76,35 +78,151 @@ func (m *BookModel) Insert(title string, publishYear int, calendarTime string, i
 
 // Get a single book by ID
 func (m *BookModel) Get(id int) (Book, error) {
-	var b Book
-	var a Author
+    var books []Book
 
-	idStr := strconv.Itoa(id)
+    idStr := strconv.Itoa(id)
 
-	count, err := m.Client.From("books").Select("*", "exact", false).Eq("id", idStr).Single().ExecuteTo(&b)
+    response, count, err := m.Client.From("books").Select("*", "exact", false).Eq("id", idStr).ExecuteString()
+    if err != nil {
+        log.Printf("Error executing query: %v", err)
+        return Book{}, err
+    }
+
+    if count == 0 {
+        log.Printf("No record found for ID: %d", id)
+        return Book{}, ErrNoRecord
+    }
+
+    err = json.NewDecoder(strings.NewReader(response)).Decode(&books)
+    if err != nil {
+        log.Printf("Error decoding JSON: %v", err)
+        return Book{}, err
+    }
+
+    if len(books) == 0 {
+        log.Printf("No book found for ID: %d", id)
+        return Book{}, ErrNoRecord
+    }
+
+    book := books[0]
+
+	// Get the quotes for this book
+    quotesResponse, count, err := m.Client.From("quotes").Select("*", "exact", false).Eq("book_id", strconv.Itoa(book.ID)).ExecuteString()
+    if err != nil {
+        log.Printf("Error fetching quotes for book %d: %v", book.ID, err)
+        return Book{}, err
+    }
+
+	// Decode the quotes
+	var quotes []Quote
+	err = json.NewDecoder(strings.NewReader(quotesResponse)).Decode(&quotes)
 	if err != nil {
-		log.Printf("Error executing query: %v", err)
-		return Book{}, ErrNoRecord
-	} else if count > 1 {
-		log.Printf("Unexpected count > 1 for ID: %d", id)
+		log.Printf("Error decoding quotes JSON: %v", err)
 		return Book{}, err
-	} else if count == 0 {
-		log.Printf("No record found for ID: %d", id)
-		return Book{}, ErrNoRecord
 	}
 
-	log.Printf("Retrieved book: %+v", b)
+	// Set the quotes for this book
+	book.Quotes = quotes
 
-	_, err = m.Client.From("authors").Select("*", "exact", false).Eq("id", strconv.Itoa(b.Author.ID)).Single().ExecuteTo(&a)
-	if err != nil {
-		log.Printf("Error executing query: %v", err)
-		return Book{}, err
+    if count > 0 {
+		// Fetch the author for this book based on the author id
+		authorResponse, _, err := m.Client.From("authors").Select("*", "exact", false).Eq("id", strconv.Itoa(quotes[0].AuthorID)).Single().ExecuteString()
+		if err != nil {
+			log.Printf("Error fetching author for book %d: %v", book.ID, err)
+			return Book{}, err
+		}
+
+		var author Author
+		err = json.NewDecoder(strings.NewReader(authorResponse)).Decode(&author)
+		if err != nil {
+			log.Printf("Error decoding author JSON for book %d: %v", book.ID, err)
+			return Book{}, err
+		}
+
+		book.Author = author
+    } else {
+		log.Printf("No quotes found for book %d", book.ID)
+		book.Quotes = []Quote{}
+		book.Author = Author{ID: 0, Name: "Unknown"}
 	}
 
-	// Set the author to the book
-	b.Author = a
+    return book, nil
+}
 
-	return b, nil
+// Get a list of books by author ID
+func (m *BookModel) GetByAuthorID(authorID int) ([]Book, error) {
+    var books []Book
+
+    // First, get all quotes for this author
+    quotesResponse, count, err := m.Client.From("quotes").Select("*", "exact", false).Eq("author_id", strconv.Itoa(authorID)).ExecuteString()
+    if err != nil {
+        log.Printf("Error fetching quotes for author %d: %v", authorID, err)
+        return nil, err
+    }
+
+    if count == 0 {
+        log.Println("No quotes found for this author")
+        return []Book{}, nil
+    }
+
+    var quotes []Quote
+    err = json.NewDecoder(strings.NewReader(quotesResponse)).Decode(&quotes)
+    if err != nil {
+        log.Printf("Error decoding quotes JSON: %v", err)
+        return nil, err
+    }
+
+    // Create a map to store unique books
+    bookMap := make(map[int]*Book)
+
+    // Fetch book details for each quote and add to the map
+    for _, quote := range quotes {
+        if _, exists := bookMap[quote.BookID]; !exists {
+            bookResponse, _, err := m.Client.From("books").Select("*", "exact", false).Eq("id", strconv.Itoa(quote.BookID)).Single().ExecuteString()
+            if err != nil {
+                log.Printf("Error fetching book for quote %d: %v", quote.ID, err)
+                continue
+            }
+
+            var book Book
+            err = json.NewDecoder(strings.NewReader(bookResponse)).Decode(&book)
+            if err != nil {
+                log.Printf("Error decoding book JSON for quote %d: %v", quote.ID, err)
+                continue
+            }
+
+            bookMap[quote.BookID] = &book
+        }
+
+        // Add the quote to the book's quotes slice
+        bookMap[quote.BookID].Quotes = append(bookMap[quote.BookID].Quotes, quote)
+    }
+
+    // Convert the map to a slice
+    for _, book := range bookMap {
+        books = append(books, *book)
+    }
+
+    // Fetch author details
+    authorResponse, _, err := m.Client.From("authors").Select("*", "exact", false).Eq("id", strconv.Itoa(authorID)).Single().ExecuteString()
+    if err != nil {
+        log.Printf("Error fetching author %d: %v", authorID, err)
+        return books, nil // Return books without author details
+    }
+
+    var author Author
+    err = json.NewDecoder(strings.NewReader(authorResponse)).Decode(&author)
+    if err != nil {
+        log.Printf("Error decoding author JSON: %v", err)
+        return books, nil // Return books without author details
+    }
+
+    // Set the author for all books
+    for i := range books {
+        books[i].Author = author
+    }
+
+    return books, nil
 }
 
 // Get all books with authors

@@ -1,17 +1,9 @@
 {{define "title"}}Author: {{.Author.Name}}{{end}}
 
 {{define "main"}}
-<div class="flex flex-col items-center justify-center w-full h-full mx-auto bg-gray-100 dark:bg-gray-900 py-8">
-    {{with .Author}}
-    <div class="w-full max-w-3xl">
-        <div class="container p-8 flex flex-col items-center bg-white dark:bg-gray-800 shadow-md rounded-lg">
-            <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">{{.Name}}</h1>
-            <div class="grid grid-cols-2 gap-4 w-full max-w-[32rem]">
-                <p class="text-gray-700 dark:text-gray-300"><span class="font-semibold">Number of Quotes:</span> {{.QuoteCount}}</p>
-                <p class="text-gray-700 dark:text-gray-300"><span class="font-semibold">Number of Books:</span> {{.BookCount}}</p>
-            </div>
-        </div>
-        <div class="container bg-gray-200 dark:bg-gray-800 px-8 py-4 flex justify-between items-center mt-6 rounded-lg shadow-md">
+<div class="container flex flex-col items-center justify-center w-full h-full mx-auto bg-gray-100 dark:bg-gray-900 py-8">
+    <div class="w-full">
+        <div class="bg-gray-200 dark:bg-gray-800 px-8 py-4 flex justify-between items-center mb-6 rounded-lg shadow-md">
             <a href="/authors" class="text-black dark:text-white hover:text-gray-800 dark:hover:text-gray-200 hover:underline">
                 &larr; Back to Authors
             </a>
@@ -27,11 +19,13 @@
                 {{end}}
             </div>
         </div>
+        <div class="p-8 flex flex-col items-center bg-white dark:bg-gray-800 shadow-md rounded-lg">
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">{{.Author.Name}}</h1>
+        </div>
     </div>
-    {{end}}
 
-    <h2 class="text-2xl font-bold mt-8 mb-4 text-gray-800 dark:text-white">Books by {{.Author.Name}}</h2>
-    <div class="flex flex-row flex-wrap w-full items-start justify-center gap-4 lg:gap-8">
+    <h2 class="text-2xl font-bold mt-8 mb-4 text-gray-800 dark:text-white">Quoted Books</h2>
+    <div class="flex flex-row flex-wrap w-full items-start justify-center lg:justify-start gap-4 lg:gap-8">
         {{if .Books}}
             {{range .Books}}
                 <div class="relative flex flex-col items-center justify-center gap-2 rounded-md p-3 border border-gray-300 dark:border-gray-600 hover:border-gray-500 dark:hover:border-gray-400 shadow-md hover:shadow-lg transition-all duration-300 w-full sm:max-w-full sm:min-w-full md:max-w-[28rem] md:min-w-[24rem] bg-gray-50 dark:bg-gray-900">

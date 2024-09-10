@@ -17,6 +17,7 @@ import (
 type QuoteModelInterface interface {
 	Insert(quote string, authorID int, bookID int, pageNumber string, isPrivate bool, userID uuid.UUID) (int, error)
 	Get(id int) (Quote, error)
+	GetByAuthorID(authorID int) ([]Quote, error)
 	GetByUserID(userID uuid.UUID) ([]Quote, error)
 	GetWithAuthorAndBook(id int) (Quote, error)
 	Update(id int, quote string, authorID int, bookID int, pageNumber string, isPrivate bool) (int, error)
@@ -24,6 +25,7 @@ type QuoteModelInterface interface {
 	Exists(id int) (bool, error)
 	Delete(id int) error
 	SetAuthUserID(id uuid.UUID)
+	GetByBookID(bookID int) ([]Quote, error)
 }
 
 // Define a Quote struct to hold the quote data
@@ -77,6 +79,19 @@ func (m *QuoteModel) Get(id int) (Quote, error) {
 	// Return the Quote struct
 	log.Printf("Retrieved quote: %+v", q)
 	return q, nil
+}
+
+// Return a list of quotes by author ID
+func (m *QuoteModel) GetByAuthorID(authorID int) ([]Quote, error) {
+	var quotes []Quote
+	
+	_, err := m.Client.From("quotes").Select("*", "exact", false).Eq("author_id", strconv.Itoa(authorID)).ExecuteTo(&quotes)
+	if err != nil {
+		log.Printf("Error executing query: %v", err)
+		return nil, err
+	}
+
+	return quotes, nil
 }
 
 // Return a list of quotes by user ID
@@ -302,4 +317,27 @@ func (m *QuoteModel) Delete(id int) error {
 	// Delete the quote from the database
 	_, _, err := m.Client.From("quotes").Delete("", "exact").Eq("id", idStr).Execute()
 	return err
+}
+
+// GetByBookID returns all quotes for a given book ID
+func (m *QuoteModel) GetByBookID(bookID int) ([]Quote, error) {
+    var quotes []Quote
+    
+    response, count, err := m.Client.From("quotes").Select("*", "exact", false).Eq("book_id", strconv.Itoa(bookID)).ExecuteString()
+    if err != nil {
+        log.Printf("Error fetching quotes for book %d: %v", bookID, err)
+        return nil, err
+    }
+
+    if count == 0 {
+        return []Quote{}, nil // Return an empty slice if no quotes found
+    }
+
+    err = json.NewDecoder(strings.NewReader(response)).Decode(&quotes)
+    if err != nil {
+        log.Printf("Error decoding quotes JSON: %v", err)
+        return nil, err
+    }
+
+    return quotes, nil
 }

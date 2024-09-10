@@ -40,6 +40,11 @@ func (m *QuoteModel) Get(id int) (models.Quote, error) {
 	}
 }
 
+// Get a quote by AuthorID
+func (m *QuoteModel) GetByAuthorID(authorID int) ([]models.Quote, error) {
+	return []models.Quote{mockQuote}, nil
+}
+
 // Get a quote by UserID
 func (m *QuoteModel) GetByUserID(userID uuid.UUID) ([]models.Quote, error) {
 	return []models.Quote{mockQuote}, nil

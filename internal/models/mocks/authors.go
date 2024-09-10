@@ -60,9 +60,10 @@ func (m *AuthorModel) GetBooksByAuthor(authorID int) ([]models.Book, error) {
 }
 
 // Get an author with counts
-func (m *AuthorModel) GetWithCounts(id int) (models.AuthorWithCounts, error) {
-	return models.AuthorWithCounts{
-		Author: mockAuthor,
+func (m *AuthorModel) GetWithCounts(id int) (models.Author, error) {
+	return models.Author{
+		ID: 1,
+		Name: "John Doe",
 		BookCount: 1,
 		QuoteCount: 1,
 	}, nil

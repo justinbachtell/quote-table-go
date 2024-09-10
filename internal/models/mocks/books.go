@@ -29,6 +29,11 @@ func (m *BookModel) Get(id int) (models.Book, error) {
 	}
 }
 
+// Get a list of books by author ID
+func (m *BookModel) GetByAuthorID(authorID int) ([]models.Book, error) {
+	return []models.Book{mockBook}, nil
+}
+
 // Get all books
 func (m *BookModel) GetAll() ([]models.Book, error) {
 	return []models.Book{mockBook}, nil

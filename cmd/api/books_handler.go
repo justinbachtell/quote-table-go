@@ -22,26 +22,37 @@ type bookCreateForm struct {
 
 // Handler for the view book page
 func (app *application) bookView(w http.ResponseWriter, r *http.Request) {
-	id, err := app.readIDParam(r)
-	if err != nil || id < 1 {
-		app.notFoundResponse(w, r)
-		return
-	}
+    id, err := app.readIDParam(r)
+    if err != nil || id < 1 {
+        app.notFoundResponse(w, r)
+        return
+    }
 
-	book, err := app.books.Get(int(id))
-	if err != nil {
-		if errors.Is(err, models.ErrNoRecord) {
-			app.notFoundResponse(w, r)
-		} else {
-			app.serverError(w, r, err)
-		}
-		return
-	}
+    book, err := app.books.Get(int(id))
+    if err != nil {
+        if errors.Is(err, models.ErrNoRecord) {
+            app.notFoundResponse(w, r)
+        } else {
+            app.serverError(w, r, err)
+        }
+        return
+    }
 
-	data := app.newTemplateData(r)
-	data.Book = book
+    // Fetch quotes for this book
+    quotes, err := app.quotes.GetByBookID(id)
+    if err != nil {
+        // Log the error but don't fail the request
+        log.Printf("Error fetching quotes for book %d: %v", id, err)
+        quotes = []models.Quote{} // Set an empty slice of quotes
+    }
 
-	app.render(w, r, http.StatusOK, "view-book.go.tmpl", data)
+    book.Quotes = quotes
+
+    data := app.newTemplateData(r)
+    data.Book = book
+	data.Quotes = quotes
+
+    app.render(w, r, http.StatusOK, "view-book.go.tmpl", data)
 }
 
 // Handler for the books page
@@ -50,11 +61,6 @@ func (app *application) bookList(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		app.serverError(w, r, err)
 		return
-	}
-
-	log.Printf("Retrieved %d books in bookList handler", len(books))
-	for i, book := range books {
-		log.Printf("Book %d: Title: %s, Author: %s", i, book.Title, book.Author.Name)
 	}
 
 	data := app.newTemplateData(r)

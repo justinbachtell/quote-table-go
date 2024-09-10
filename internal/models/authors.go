@@ -17,7 +17,7 @@ type AuthorModelInterface interface {
 	Get(id int) (Author, error)
 	GetBooksByAuthor(authorID int) ([]Book, error)
 	GetQuotesByAuthor(authorID int) ([]Quote, error)
-	GetWithCounts(id int) (AuthorWithCounts, error)
+	GetWithCounts(id int) (Author, error)
 	GetByName(name string) (Author, error)
 	Update(id int, name string) (int, error)
 	Delete(id int) error
@@ -34,6 +34,8 @@ type Author struct {
 	UserID uuid.UUID `json:"user_id"`
 	QuoteCount int `json:"quote_count"`
 	BookCount int `json:"book_count"`
+	Books []Book `json:"books"`
+	Quotes []Quote `json:"quotes"`
 }
 
 // The model used in the connection pool
@@ -329,38 +331,41 @@ type AuthorWithCounts struct {
 }
 
 // GetWithCounts returns an author with their book count
-func (m *AuthorModel) GetWithCounts(id int) (AuthorWithCounts, error) {
-	// Get the author
-	author, err := m.Get(id)
-	if err != nil {
-		return AuthorWithCounts{}, err
-	}
+func (m *AuthorModel) GetWithCounts(id int) (Author, error) {
+    var author Author
 
-	// Get the quotes
-	quotes, err := m.GetQuotesByAuthor(id)
-	if err != nil {
-		return AuthorWithCounts{}, err
-	}
+    // Convert id to string
+    idStr := strconv.Itoa(id)
 
-	// Create a map to hold the counts for each author
-	quoteCountMap := make(map[int]int)
-	bookCountMap := make(map[int]int)
+    // Query the database for the author
+    count, err := m.Client.From("authors").Select("*", "exact", false).Eq("id", idStr).Single().ExecuteTo(&author)
+    if err != nil {
+        log.Printf("Error executing query: %v", err)
+        return Author{}, ErrNoRecord
+    } else if count == 0 {
+        log.Printf("No record found for ID: %d", id)
+        return Author{}, ErrNoRecord
+    }
 
-	// Iterate through quotes and count the unique books for each author
-	for _, quote := range quotes {
-		quoteCountMap[quote.AuthorID]++
-		bookCountMap[quote.AuthorID]++
-	}
+    // Get quote count
+    _, quoteCount, err := m.Client.From("quotes").Select("id", "exact", false).Eq("author_id", idStr).Execute()
+    if err != nil {
+        log.Printf("Error getting quote count: %v", err)
+        return Author{}, err
+    }
+    author.QuoteCount = int(quoteCount)
 
-	// Create an AuthorWithCounts struct
-	authorWithCount := AuthorWithCounts{
-		Author: author,
-		QuoteCount: quoteCountMap[author.ID],
-		BookCount: bookCountMap[author.ID],
-	}
+    // Get unique books for this author
+    var books []Book
+    _, err = m.Client.From("quotes").Select("book_id", "exact", false).Eq("author_id", idStr).ExecuteTo(&books)
+    if err != nil {
+        log.Printf("Error getting books for author: %v", err)
+        return Author{}, err
+    }
 
-	// Return the author with their counts
-	return authorWithCount, nil
+    author.BookCount = len(books)
+
+    return author, nil
 }
 
 // GetAllWithCounts returns all authors with their book count
