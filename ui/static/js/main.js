@@ -256,3 +256,25 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+// Filter
+document.addEventListener('DOMContentLoaded', function() {
+    const multiSelectButtons = document.querySelectorAll('#multi-select-toggle-author, #multi-select-toggle-book, #multi-select-toggle-genre, #multi-select-toggle-topic, #multi-select-toggle-type, #multi-select-toggle-tag');
+    const dropdowns = document.querySelectorAll('#multi-select-dropdown-author, #multi-select-dropdown-book, #multi-select-dropdown-genre, #multi-select-dropdown-topic, #multi-select-dropdown-type, #multi-select-dropdown-tag');
+
+    multiSelectButtons.forEach((button, index) => {
+        button.addEventListener('click', function(event) {
+            event.stopPropagation();
+            dropdowns[index].classList.toggle('hidden');
+        });
+    });
+
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', function(event) {
+        if (!event.target.closest('#multi-select-toggle-author, #multi-select-toggle-book, #multi-select-toggle-genre, #multi-select-toggle-topic, #multi-select-toggle-type, #multi-select-toggle-tag')) {
+            dropdowns.forEach(dropdown => {
+                dropdown.classList.add('hidden');
+            });
+        }
+    });
+});

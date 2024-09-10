@@ -3,24 +3,143 @@
 {{define "main"}}
     <div class="container mx-auto px-4 py-8">    
         <!-- Filters -->
-        <div class="mb-6 flex flex-wrap gap-4">
-            <div class="flex flex-col">
-                <label for="author-filter" class="mb-1">Author</label>
-                <select id="author-filter" multiple class="p-2 border rounded w-48">
+        <div class="mb-6 flex flex-wrap gap-2">
+
+            <!-- Author Filter -->
+            <div class="relative">
+                <div class="flex flex-col">
+                    <button id="multi-select-toggle-author" class="relative flex flex-row gap-1 w-full text-sm p-2 text-center bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <span id="filter-label" class="relative flex items-center justify-center">Select author</span>
+                        <span class="relative flex items-center justify-center pointer-events-none">
+                            <svg class="w-5 h-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                <path fill-rule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
+                            </svg>
+                        </span>
+                    </button>
+                </div>
+                <div id="multi-select-dropdown-author" class="hidden absolute top-11 left-0 z-10 w-full mt-1 bg-white rounded-md shadow-lg">
+                    <ul class="py-1 overflow-auto text-base max-h-60 focus:outline-none sm:text-sm overflow-x: auto; white-space: nowrap;">
                     {{range .Authors}}
-                        <option value="{{.Author.ID}}">{{.Author.Name}}</option>
+                        <li class="relative px-2 py-2">
+                            <label class="flex items-center flex-row gap-2 flex-nowrap">
+                                <input type="checkbox" class="form-checkbox h-3 w-3 text-blue-600" value="{{.Author.ID}}" name="author-filter">
+                                <span class="flex-1 text-left text-gray-900 text-sm whitespace-nowrap">{{.Author.Name}}</span>
+                            </label>
+                        </li>
                     {{end}}
-                </select>
+                    </ul>
+                </div>
             </div>
-            <div class="flex flex-col">
-                <label for="book-filter" class="mb-1">Book</label>
-                <select id="book-filter" multiple class="p-2 border rounded w-48">
+
+            <!-- Book Filter -->
+            <div class="relative">
+                <div class="flex flex-col">
+                    <button id="multi-select-toggle-book" class="relative flex flex-row gap-1 w-full text-sm p-2 text-center bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <span id="filter-label" class="relative flex items-center justify-center">Select book</span>
+                        <span class="relative flex items-center justify-center pointer-events-none">
+                            <svg class="w-5 h-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                <path fill-rule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
+                            </svg>
+                        </span>
+                    </button>
+                </div>
+                <div id="multi-select-dropdown-book" class="hidden absolute top-11 left-0 z-10 w-full mt-1 bg-white rounded-md shadow-lg">
+                    <ul class="py-1 overflow-auto text-base max-h-60 focus:outline-none sm:text-sm overflow-x: auto; white-space: nowrap;">
                     {{range .Books}}
-                        <option value="{{.ID}}">{{.Title}}</option>
+                        <li class="relative px-2 py-2">
+                            <label class="flex items-center flex-row gap-2 flex-nowrap" style="overflow-x: auto; white-space: nowrap;">
+                                <input type="checkbox" class="form-checkbox h-3 w-3 text-blue-600 flex-shrink-0" value="{{.ID}}" name="book-filter">
+                                <span class="flex-1 text-left text-gray-900 text-sm whitespace-nowrap">{{.Title}}</span>
+                            </label>
+                        </li>
                     {{end}}
-                </select>
+                    </ul>
+                </div>
             </div>
-            <button id="apply-filters" class="bg-blue-500 text-white p-2 rounded mt-auto">Apply Filters</button>
+
+            <!-- Genre Filter -->
+            <div class="relative">
+                <div class="flex flex-col">
+                    <button id="multi-select-toggle-genre" class="relative flex flex-row gap-1 w-full text-sm p-2 text-center bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <span id="filter-label" class="relative flex items-center justify-center">Select genre</span>
+                        <span class="relative flex items-center justify-center pointer-events-none">
+                            <svg class="w-5 h-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                <path fill-rule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
+                            </svg>
+                        </span>
+                    </button>
+                </div>
+                <div id="multi-select-dropdown-genre" class="hidden absolute top-11 left-0 z-10 w-full mt-1 bg-white rounded-md shadow-lg">
+                    <ul class="py-1 overflow-auto text-base max-h-60 focus:outline-none sm:text-sm overflow-x: auto; white-space: nowrap;">
+                    
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Topic Filter -->
+            <div class="relative">
+                <div class="flex flex-col">
+                    <button id="multi-select-toggle-topic" class="relative flex flex-row gap-1 w-full text-sm p-2 text-center bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <span id="filter-label" class="relative flex items-center justify-center">Select topic</span>
+                        <span class="relative flex items-center justify-center pointer-events-none">
+                            <svg class="w-5 h-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                <path fill-rule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
+                            </svg>
+                        </span>
+                    </button>
+                </div>
+                <div id="multi-select-dropdown-topic" class="hidden absolute top-11 left-0 z-10 w-full mt-1 bg-white rounded-md shadow-lg">
+                    <ul class="py-1 overflow-auto text-base max-h-60 focus:outline-none sm:text-sm overflow-x: auto; white-space: nowrap;">
+                    
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Type Filter -->
+            <div class="relative">
+                <div class="flex flex-col">
+                    <button id="multi-select-toggle-type" class="relative flex flex-row gap-1 w-full text-sm p-2 text-center bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <span id="filter-label" class="relative flex items-center justify-center">Select type</span>
+                        <span class="relative flex items-center justify-center pointer-events-none">
+                            <svg class="w-5 h-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                <path fill-rule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
+                            </svg>
+                        </span>
+                    </button>
+                </div>
+                <div id="multi-select-dropdown-type" class="hidden absolute top-11 left-0 z-10 w-full mt-1 bg-white rounded-md shadow-lg">
+                    <ul class="py-1 overflow-auto text-base max-h-60 focus:outline-none sm:text-sm overflow-x: auto; white-space: nowrap;">
+                    
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Tag Filter -->
+            <div class="relative">
+                <div class="flex flex-col">
+                    <button id="multi-select-toggle-tag" class="relative flex flex-row gap-1 w-full text-sm p-2 text-center bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <span id="filter-label" class="relative flex items-center justify-center">Select tag</span>
+                        <span class="relative flex items-center justify-center pointer-events-none">
+                            <svg class="w-5 h-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                <path fill-rule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
+                            </svg>
+                        </span>
+                    </button>
+                </div>
+                <div id="multi-select-dropdown-tag" class="hidden absolute top-11 left-0 z-10 w-full mt-1 bg-white rounded-md shadow-lg">
+                    <ul class="py-1 overflow-auto text-base max-h-60 focus:outline-none sm:text-sm overflow-x: auto; white-space: nowrap;">
+                    
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Private Filter -->
+            
+
+            <!-- Favorite Filter -->
+            
+
+            <button id="apply-filters" class="bg-black hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200 text-white text-sm p-2 rounded mt-auto">Apply Filters</button>
         </div>
         
         <!-- Quotes Table -->
@@ -43,13 +162,13 @@
                                 <td class="p-2">{{.Book.Title}}</td>
                                 <td class="p-2 float-right">
                                     <button id="copy-quote-button-{{.ID}}" class="text-blue-500 hover:text-blue-700 mr-2" title="Copy Quote">
-                                        <svg width="1.2rem" height="1.2rem" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <svg width="19.2px" height="19.2px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                             <path d="M6 11C6 8.17157 6 6.75736 6.87868 5.87868C7.75736 5 9.17157 5 12 5H15C17.8284 5 19.2426 5 20.1213 5.87868C21 6.75736 21 8.17157 21 11V16C21 18.8284 21 20.2426 20.1213 21.1213C19.2426 22 17.8284 22 15 22H12C9.17157 22 7.75736 22 6.87868 21.1213C6 20.2426 6 18.8284 6 16V11Z" stroke="currentColor" stroke-width="1.5"/>
                                             <path d="M6 19C4.34315 19 3 17.6569 3 16V10C3 6.22876 3 4.34315 4.17157 3.17157C5.34315 2 7.22876 2 11 2H15C16.6569 2 18 3.34315 18 5" stroke="currentColor" stroke-width="1.5"/>
                                         </svg>
                                     </button>
                                     <a href="/quote/view/{{.ID}}" class="text-green-500 hover:text-green-700" title="View Quote">
-                                        <svg fill="currentColor" width="1.2rem" height="1.2rem" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                                        <svg fill="currentColor" width="19.2px" height="19.2px" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
                                             <path d="M27.49,26.07a5.76,5.76,0,1,0-1.42,1.42l4.22,4.22a1,1,0,0,0,1.42,0,1,1,0,0,0,0-1.42ZM19,22.77a3.77,3.77,0,1,1,3.77,3.76A3.77,3.77,0,0,1,19,22.77Z"/>
                                             <path d="M30,6.5H16.33L12.6,3.7l-.1-.05-.19-.09-.2,0L12,3.5H2a2,2,0,0,0-2,2v21a2,2,0,0,0,2,2H14a1,1,0,0,0,0-2H2V5.5h9.67L15.4,8.3l.13.07.12.06A1,1,0,0,0,16,8.5H30v7.81a1,1,0,1,0,2,0V8.5A2,2,0,0,0,30,6.5Z"/>
                                         </svg>

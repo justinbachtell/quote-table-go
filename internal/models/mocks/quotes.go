@@ -50,6 +50,10 @@ func (m *QuoteModel) GetByUserID(userID uuid.UUID) ([]models.Quote, error) {
 	return []models.Quote{mockQuote}, nil
 }
 
+func (m *QuoteModel) GetByBookID(bookID int) ([]models.Quote, error) {
+	return []models.Quote{mockQuote}, nil
+}
+
 // Get a quote with the author and book
 func (m *QuoteModel) GetWithAuthorAndBook(id int) (models.Quote, error) {
 	return mockQuote, nil

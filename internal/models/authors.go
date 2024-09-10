@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/google/uuid"
+	"github.com/supabase-community/postgrest-go"
 	"github.com/supabase-community/supabase-go"
 )
 
@@ -129,7 +130,7 @@ func (m *AuthorModel) GetBooksByAuthor(authorID int) ([]Book, error) {
 	authorIDStr := strconv.Itoa(authorID)
 
 	// Query the database for the books by author
-	response, count, err := m.Client.From("books").Select("*", "exact", false).ExecuteString()
+	response, count, err := m.Client.From("books").Select("*", "exact", false).Order("title", &postgrest.OrderOpts{Ascending: true}).ExecuteString()
 	if err != nil {
 		log.Printf("Error executing query: %v", err)
 		return []Book{}, err
@@ -187,7 +188,7 @@ func (m *AuthorModel) GetQuotesByAuthor(authorID int) ([]Quote, error) {
 	authorIDStr := strconv.Itoa(authorID)
 
 	// Query the database for the quotes by author
-	response, count, err := m.Client.From("quotes").Select("*", "exact", false).Eq("author_id", authorIDStr).ExecuteString()
+	response, count, err := m.Client.From("quotes").Select("*", "exact", false).Eq("author_id", authorIDStr).Order("quote", &postgrest.OrderOpts{Ascending: true}).ExecuteString()
 	if err != nil {
 		log.Printf("Error executing query: %v", err)
 		return []Quote{}, err
@@ -393,7 +394,7 @@ func (m *AuthorModel) GetAllWithCounts() ([]AuthorWithCounts, error) {
 	}
 
 	// Get the books 
-	booksResponse, bookCount, err := m.Client.From("books").Select("*", "exact", false).ExecuteString()
+	booksResponse, bookCount, err := m.Client.From("books").Select("*", "exact", false).Order("title", &postgrest.OrderOpts{Ascending: true}).ExecuteString()
 	if err != nil {
 		log.Printf("Failed to get books: %v", err)
 		return nil, err
@@ -413,7 +414,7 @@ func (m *AuthorModel) GetAllWithCounts() ([]AuthorWithCounts, error) {
 	}
 
 	// Get the quotes
-	quotesResponse, quoteCount, err := m.Client.From("quotes").Select("*", "exact", false).ExecuteString()
+	quotesResponse, quoteCount, err := m.Client.From("quotes").Select("*", "exact", false).Order("quote", &postgrest.OrderOpts{Ascending: true}).ExecuteString()
 	if err != nil {
 		log.Printf("Failed to get quotes: %v", err)
 		return nil, err
