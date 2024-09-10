@@ -16,6 +16,10 @@ type templateData struct {
     CurrentYear int
     Quote       models.Quote
     Quotes      []models.Quote
+	Author      models.Author
+    Authors     []models.AuthorWithCounts
+	Book        models.Book
+	Books       []models.Book
     User        *models.User
     Form        any
     Flash       string

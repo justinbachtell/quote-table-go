@@ -38,6 +38,8 @@ func newTestApplication(t *testing.T) *application {
 	return &application{
 		logger: slog.New(slog.NewTextHandler(io.Discard, nil)),
 		quotes: &mocks.QuoteModel{},
+		authors: &mocks.AuthorModel{},
+		books: &mocks.BookModel{},
 		users: &mocks.UserModel{},
 		templateCache: templateCache,
 		formDecoder: formDecoder,

@@ -3,10 +3,12 @@
 {{define "main"}}
 <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
     <div class="container mx-auto px-4 py-8">
-        <h1 class="text-3xl font-bold mb-6 text-gray-800 dark:text-white">Edit Profile</h1>
-        
+        <a href="/user/profile/view/{{.User.ProfileSlug}}" class="text-gray-800 dark:text-gray-200 hover:text-gray-600 dark:hover:text-gray-400">&larr; Back to Profile</a>
+
+        <h1 class="text-3xl font-bold my-6 text-gray-800 dark:text-white">Edit Profile</h1>
+
         <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
-            <form action="/user/profile/edit" method="POST" class="space-y-6">
+            <form action="/user/profile/edit" method="POST" class="flex flex-col gap-6">
                 <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
                 
                 <div>
@@ -26,8 +28,8 @@
                 </div>
 
                 <div>
-                    <label for="phone" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Phone</label>
-                    <input type="tel" name="phone" id="phone" value="{{.Form.Phone}}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                    <label for="phone" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Phone (123-456-7890)</label>
+                    <input type="tel" name="phone" id="phone" placeholder="123-456-7890" value="{{.Form.Phone}}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                     {{with .Form.FieldErrors.phone}}
                         <p class="mt-2 text-sm text-red-600 dark:text-red-400">{{.}}</p>
                     {{end}}

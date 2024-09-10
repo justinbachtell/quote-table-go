@@ -1,13 +1,12 @@
 package models
 
 import (
-	"strconv"
 	"testing"
 
 	"github.com/google/uuid"
 )
 
-func TestQuoteModelExists(t *testing.T) {
+func TestBookModelExists(t *testing.T) {
 	// Skip the test if the "-short" flag is passed
 	if testing.Short() {
 		t.Skip("models: skipping integration tests in short mode")
@@ -15,9 +14,9 @@ func TestQuoteModelExists(t *testing.T) {
 
 	// Set up a tests struct
 	tests := []struct {
-		name    string
-		quoteID int
-		want    bool
+		name string
+		bookID int
+		want bool
 	}{
 		{"Valid ID", -1, true}, // We'll replace -1 with the actual ID
 		{"Non-existent ID", 9999, false},
@@ -28,23 +27,23 @@ func TestQuoteModelExists(t *testing.T) {
 	// Create a new test database once for all tests
 	db := newTestDatabase(t)
 
-	// Create a new QuoteModel instance
-	m := QuoteModel{Client: db}
+	// Create a new BookModel instance
+	m := BookModel{Client: db}
 
-	// Insert a test quote and get the ID
-	testQuoteID, err := InsertTestQuote(db, "Test quote", "Test Author")
+	// Insert a test book and get the ID
+	testBookID, err := InsertTestBook(db, "Test Book")
 	if err != nil {
-		t.Fatalf("Failed to insert test quote: %v", err)
+		t.Fatalf("Failed to insert test book: %v", err)
 	}
 
 	// Replace the -1 in the "Valid ID" test with the actual ID
-	tests[0].quoteID = testQuoteID
+	tests[0].bookID = testBookID
 
 	// Loop through each test
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			// Call the Exists method to check if the quote exists
-			exists, err := m.Exists(tt.quoteID)
+			// Call the Exists method to check if the book exists
+			exists, err := m.Exists(tt.bookID)
 
 			// Check for error first
 			if err != nil {
@@ -57,17 +56,9 @@ func TestQuoteModelExists(t *testing.T) {
 			}
 		})
 	}
-
-	// Add cleanup function to delete the test quote after all tests are run
-	t.Cleanup(func() {
-		_, _, err := db.From("quotes").Delete("", "exact").Eq("id", strconv.Itoa(testQuoteID)).Execute()
-		if err != nil {
-			t.Errorf("Failed to delete test quote: %v", err)
-		}
-	})
 }
 
-func TestQuoteModelSetAuthUserID(t *testing.T) {
+func TestBookModelSetAuthUserID(t *testing.T) {
 	// Skip the test if the "-short" flag is passed
 	if testing.Short() {
 		t.Skip("models: skipping integration tests in short mode")
@@ -76,8 +67,8 @@ func TestQuoteModelSetAuthUserID(t *testing.T) {
 	// Create a new test database
 	db := newTestDatabase(t)
 
-	// Create a new QuoteModel instance
-	m := QuoteModel{Client: db}
+	// Create a new BookModel instance
+	m := BookModel{Client: db}
 
 	// Create a new user
 	userID := uuid.New()

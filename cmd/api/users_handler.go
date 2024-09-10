@@ -136,6 +136,13 @@ func (app *application) userLoginPost(w http.ResponseWriter, r *http.Request) {
     app.sessionManager.Put(r.Context(), "authenticatedUserID", id.String())
     app.logger.Info("User logged in", "userID", id)
 
+	// Update the user's last signed in at timestamp
+	err = app.users.UpdateLastSignedInAt(id)
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
+
     // Redirect to the home page
     http.Redirect(w, r, "/", http.StatusSeeOther)
 }
@@ -179,9 +186,12 @@ func (app *application) userProfileView(w http.ResponseWriter, r *http.Request) 
         return
     }
 
+	// Store the data in the template
     data := app.newTemplateData(r)
     data.User = &user
+	data.AuthenticatedUserID = user.ID
 
+	// Render the profile page
     app.render(w, r, http.StatusOK, "profile.go.tmpl", data)
 }
 

@@ -1,0 +1,58 @@
+{{define "title"}}Create a New Book{{end}}
+
+{{define "main"}}
+<div class="container flex flex-col w-full sm:max-w-xl md:max-w-2xl items-start justify-start gap-6 min-h-screen py-8 px-4 sm:px-6 lg:px-8">
+    <h1 class="text-3xl font-bold text-gray-800 dark:text-gray-200">Create a New Book</h1>
+    
+    <form action="/book/create" method="POST" class="w-full space-y-6">
+        <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+        
+        <div class="flex flex-col">
+            <label for="title" class="text-lg font-semibold text-gray-800 dark:text-gray-200">Title:</label>
+            {{with .Form.FieldErrors.title}}
+                <p class="text-red-500 text-sm">{{.}}</p>
+            {{end}}
+            <input type="text" id="title" name="title" value="{{.Form.Title}}" class="mt-2 p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+        </div>
+        
+        <div class="flex flex-col">
+            <label for="publish_year" class="text-lg font-semibold text-gray-800 dark:text-gray-200">Publish Year:</label>
+            {{with .Form.FieldErrors.publish_year}}
+                <p class="text-red-500 text-sm">{{.}}</p>
+            {{end}}
+            <input type="number" id="publish_year" name="publish_year" placeholder="1999" value="{{.Form.PublishYear}}" class="mt-2 p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+        </div>
+        
+        <div class="flex flex-col">
+            <label for="calendar_time" class="text-lg font-semibold text-gray-800 dark:text-gray-200">Calendar Time (A.D. or B.C.):</label>
+            {{with .Form.FieldErrors.calendar_time}}
+                <p class="text-red-500 text-sm">{{.}}</p>
+            {{end}}
+            <select id="calendar_time" name="calendar_time" class="mt-2 p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+                <option value="A.D." {{if eq .Form.CalendarTime "A.D."}}selected{{end}}>A.D.</option>
+                <option value="B.C." {{if eq .Form.CalendarTime "B.C."}}selected{{end}}>B.C.</option>
+            </select>
+        </div>
+        
+        <div class="flex flex-col">
+            <label for="isbn" class="text-lg font-semibold text-gray-800 dark:text-gray-200">ISBN (number only, no dashes):</label>
+            {{with .Form.FieldErrors.isbn}}
+                <p class="text-red-500 text-sm">{{.}}</p>
+            {{end}}
+            <input type="text" id="isbn" name="isbn" placeholder="9876543210123" value="{{.Form.ISBN}}" class="mt-2 p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+        </div>
+        
+        <div class="flex flex-col">
+            <label for="source" class="text-lg font-semibold text-gray-800 dark:text-gray-200">Source (URL):</label>
+            {{with .Form.FieldErrors.source}}
+                <p class="text-red-500 text-sm">{{.}}</p>
+            {{end}}
+            <input type="text" id="source" name="source" value="{{.Form.Source}}" class="mt-2 p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+        </div>
+        
+        <div>
+            <input type="submit" value="Create Book" class="px-4 py-2 bg-black dark:bg-gray-800 hover:bg-gray-700 dark:hover:bg-gray-900 text-white rounded-md cursor-pointer transition-colors duration-200">
+        </div>
+    </form>
+</div>
+{{end}}

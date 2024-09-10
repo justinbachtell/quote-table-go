@@ -17,6 +17,7 @@ import (
 type UserModelInterface interface {
 	Insert(name, email, password string) (uuid.UUID, error)
 	Authenticate(email string, password string) (uuid.UUID, error)
+	UpdateLastSignedInAt(id uuid.UUID) error
 	Exists(id uuid.UUID) (bool, error)
 	Update(id uuid.UUID, name, email, phone string) error
 	ChangePassword(id uuid.UUID, currentPassword, newPassword string) error
@@ -25,6 +26,7 @@ type UserModelInterface interface {
 	GetByEmail(email string) (User, error)
 	GetByURLName(urlName string) (User, error)
 	SetAuthUserID(id uuid.UUID)
+	UpdateLastQuoteAddedAt(id uuid.UUID) error
 }
 
 // User represents a user in the database
@@ -156,6 +158,15 @@ func (m *UserModel) Authenticate(email string, password string) (uuid.UUID, erro
 	}
 
 	return tempUser.ID, nil
+}
+
+// Update the user's last signed in at timestamp
+func (m *UserModel) UpdateLastSignedInAt(id uuid.UUID) error {
+	_, _, err := m.AuthClient.From("users").Update(map[string]interface{}{"last_signed_in_at": time.Now()}, "", "").Eq("id", id.String()).ExecuteString()
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // Check if the user exists
@@ -312,7 +323,7 @@ func (m *UserModel) ChangePassword(id uuid.UUID, currentPassword, newPassword st
 // Get user by URL name
 func (m *UserModel) GetByURLName(urlName string) (User, error) {
 	// Query the database for the user with the given URL name
-	response, _, err := m.AuthClient.From("users").Select("*", "exact", false).Eq("profile_slug", urlName).Single().ExecuteString()
+	response, _, err := m.AuthClient.From("users").Select("name, email, email_verified_at, phone, phone_verified_at, profile_slug, created_at, updated_at, last_signed_in_at", "exact", false).Eq("profile_slug", urlName).Single().ExecuteString()
 	if err != nil {
 		return User{}, err
 	}
@@ -345,4 +356,13 @@ func (m *UserModel) GetIDFromURLName(urlName string) (uuid.UUID, error) {
 
 	// Return the user
 	return user.ID, nil
+}
+
+// Update last quote added at timestamp
+func (m *UserModel) UpdateLastQuoteAddedAt(id uuid.UUID) error {
+	_, _, err := m.AuthClient.From("users").Update(map[string]interface{}{"last_quote_added_at": time.Now()}, "", "").Eq("id", id.String()).ExecuteString()
+	if err != nil {
+		return err
+	}
+	return nil
 }

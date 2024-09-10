@@ -10,10 +10,14 @@ import (
 // A mock quote for testing
 var mockQuote = models.Quote{
 	ID: 1,
-	Author: "John Doe",
+	AuthorID: 1,
+	BookID: 1,
 	Quote: "To be or not to be, that is the question.",
+	PageNumber: "1",
+	IsPrivate: false,
 	UserID: uuid.New(),
 	CreatedAt: time.Now(),
+	UpdatedAt: time.Now(),
 }
 
 type QuoteModel struct {}
@@ -22,7 +26,7 @@ type QuoteModel struct {}
 func (m *QuoteModel) SetAuthUserID(id uuid.UUID) {}
 
 // Insert a quote
-func (m *QuoteModel) Insert(quote string, author string, userID uuid.UUID) (int, error) {
+func (m *QuoteModel) Insert(quote string, authorID int, bookID int, pageNumber string, isPrivate bool, userID uuid.UUID) (int, error) {
 	return 2, nil
 }
 
@@ -41,8 +45,13 @@ func (m *QuoteModel) GetByUserID(userID uuid.UUID) ([]models.Quote, error) {
 	return []models.Quote{mockQuote}, nil
 }
 
+// Get a quote with the author and book
+func (m *QuoteModel) GetWithAuthorAndBook(id int) (models.Quote, error) {
+	return mockQuote, nil
+}
+
 // Update a quote
-func (m *QuoteModel) Update(id int, quote string, author string) (int, error) {
+func (m *QuoteModel) Update(id int, quote string, authorID int, bookID int, pageNumber string, isPrivate bool) (int, error) {
 	return 2, nil
 }
 

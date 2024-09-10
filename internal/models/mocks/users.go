@@ -28,6 +28,11 @@ func (m *UserModel) Authenticate(email, password string) (uuid.UUID, error) {
 	return uuid.Nil, models.ErrInvalidCredentials
 }
 
+// Update the user's last signed in at timestamp
+func (m *UserModel) UpdateLastSignedInAt(id uuid.UUID) error {
+	return nil
+}
+
 // Check if a user exists
 func (m *UserModel) Exists(id uuid.UUID) (bool, error) {
 	switch id {
@@ -61,4 +66,9 @@ func (m *UserModel) ChangePassword(id uuid.UUID, currentPassword, newPassword st
 // Get user by URL name
 func (m *UserModel) GetByURLName(urlName string) (models.User, error) {
 	return models.User{}, nil
+}
+
+// Update last quote added at timestamp
+func (m *UserModel) UpdateLastQuoteAddedAt(id uuid.UUID) error {
+	return nil
 }

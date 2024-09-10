@@ -6,15 +6,19 @@
         </div>
         <div class="flex items-center hidden lg:flex">
             <ul class="flex flex-row items-center gap-4">
-                {{if not .IsAuthenticated}}
+                {{if .IsAuthenticated}}
                     <li class="flex items-center"><a href="/" class="p-2 rounded-md text-black hover:text-gray-500 dark:text-white dark:hover:text-gray-300">Explore</a></li>
-                    <li class="flex items-center"><a href="/pricing" class="p-2 rounded-md text-black hover:text-gray-500 dark:text-white dark:hover:text-gray-300">Pricing</a></li>
-                    <li class="flex items-center"><a href="https://justinbachtell.com/" target="_blank" rel="noopener noreferrer" class="p-2 rounded-md text-black hover:text-gray-500 dark:text-white dark:hover:text-gray-300">Contact</a></li>
-                {{else}}
-                    <li class="flex items-center"><a href="/" class="p-2 rounded-md text-black hover:text-gray-500 dark:text-white dark:hover:text-gray-300">Quotes</a></li>
                     <li class="flex items-center"><a href="/books" class="p-2 rounded-md text-black hover:text-gray-500 dark:text-white dark:hover:text-gray-300">Books</a></li>
                     <li class="flex items-center"><a href="/authors" class="p-2 rounded-md text-black hover:text-gray-500 dark:text-white dark:hover:text-gray-300">Authors</a></li>
                     <li class="flex items-center"><a href="/user/favorites" class="p-2 rounded-md text-black hover:text-gray-500 dark:text-white dark:hover:text-gray-300">Favorites</a></li>
+                    <li class="flex items-center"><a href="/pricing" class="p-2 rounded-md text-black hover:text-gray-500 dark:text-white dark:hover:text-gray-300">Pricing</a></li>
+                    <li class="flex items-center"><a href="https://justinbachtell.com/" target="_blank" rel="noopener noreferrer" class="p-2 rounded-md text-black hover:text-gray-500 dark:text-white dark:hover:text-gray-300">Contact</a></li>
+                {{else}}
+                    <li class="flex items-center"><a href="/" class="p-2 rounded-md text-black hover:text-gray-500 dark:text-white dark:hover:text-gray-300">Explore</a></li>
+                    <li class="flex items-center"><a href="/books" class="p-2 rounded-md text-black hover:text-gray-500 dark:text-white dark:hover:text-gray-300">Books</a></li>
+                    <li class="flex items-center"><a href="/authors" class="p-2 rounded-md text-black hover:text-gray-500 dark:text-white dark:hover:text-gray-300">Authors</a></li>
+                    <li class="flex items-center"><a href="/pricing" class="p-2 rounded-md text-black hover:text-gray-500 dark:text-white dark:hover:text-gray-300">Pricing</a></li>
+                    <li class="flex items-center"><a href="https://justinbachtell.com/" target="_blank" rel="noopener noreferrer" class="p-2 rounded-md text-black hover:text-gray-500 dark:text-white dark:hover:text-gray-300">Contact</a></li>
                 {{end}}
             </ul>
         </div>
@@ -49,13 +53,27 @@
     <div id="mobile-nav-menu" class="invisible fixed flex flex-row justify-end overflow-hidden top-[3.5rem] left-[100%] w-full h-full transition-all duration-300 z-[1001] border-t border-gray-300 dark:border-gray-600">
         <div class="flex flex-col w-2/3 max-w-[20rem] items-center justify-between gap-4 px-4 bg-white dark:bg-gray-900 rounded-l-lg">
             <div class="flex flex-col items-center justify-center gap-4 w-full pt-16 pb-8">
-                <ul class="flex flex-col items-center justify-center gap-4">
-                    <li><a href="/" class="p-2 rounded-md text-black hover:text-gray-500 dark:text-white dark:hover:text-gray-300">Explore</a></li>
-                    <li><a href="/" class="p-2 rounded-md text-black hover:text-gray-500 dark:text-white dark:hover:text-gray-300">Pricing</a></li>
-                    <li><a href="/" class="p-2 rounded-md text-black hover:text-gray-500 dark:text-white dark:hover:text-gray-300">Contact</a></li>
-                    {{if .IsAuthenticated}}
-                    {{end}}
-                </ul>
+                {{if .IsAuthenticated}}
+                    <ul class="flex flex-col items-center justify-center gap-4">
+                        <li><a href="/" class="p-2 rounded-md text-black hover:text-gray-500 dark:text-white dark:hover:text-gray-300">Explore</a></li>
+                        <li><a href="/books" class="p-2 rounded-md text-black hover:text-gray-500 dark:text-white dark:hover:text-gray-300">Books</a></li>
+                        <li><a href="/authors" class="p-2 rounded-md text-black hover:text-gray-500 dark:text-white dark:hover:text-gray-300">Authors</a></li>
+                        <li><a href="/user/favorites" class="p-2 rounded-md text-black hover:text-gray-500 dark:text-white dark:hover:text-gray-300">Favorites</a></li>
+                    </ul>
+                    <span class="flex justify-center border-b border-gray-300 dark:border-gray-600 w-1/2"></span>
+                    <ul class="flex flex-col items-center justify-center gap-4">
+                        <li><a href="/pricing" class="p-2 rounded-md text-black hover:text-gray-500 dark:text-white dark:hover:text-gray-300">Pricing</a></li>
+                        <li><a href="https://justinbachtell.com/" target="_blank" rel="noopener noreferrer" class="p-2 rounded-md text-black hover:text-gray-500 dark:text-white dark:hover:text-gray-300">Contact</a></li>
+                    </ul>
+                {{else}}
+                    <ul class="flex flex-col items-center justify-center gap-4">
+                        <li><a href="/" class="p-2 rounded-md text-black hover:text-gray-500 dark:text-white dark:hover:text-gray-300">Explore</a></li>
+                        <li><a href="/books" class="p-2 rounded-md text-black hover:text-gray-500 dark:text-white dark:hover:text-gray-300">Books</a></li>
+                        <li><a href="/authors" class="p-2 rounded-md text-black hover:text-gray-500 dark:text-white dark:hover:text-gray-300">Authors</a></li>
+                        <li><a href="/pricing" class="p-2 rounded-md text-black hover:text-gray-500 dark:text-white dark:hover:text-gray-300">Pricing</a></li>
+                        <li><a href="https://justinbachtell.com/" target="_blank" rel="noopener noreferrer" class="p-2 rounded-md text-black hover:text-gray-500 dark:text-white dark:hover:text-gray-300">Contact</a></li>
+                    </ul>
+                {{end}}
             </div>
             <div class="flex flex-col items-center justify-center gap-4 w-full pb-[33%]">
                 <ul class="flex flex-col items-center justify-center gap-4 w-full">

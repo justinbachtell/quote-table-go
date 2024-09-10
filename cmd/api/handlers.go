@@ -28,9 +28,25 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Get the template data and add the quotes slice
+	// Get all authors
+	authors, err := app.authors.GetAllWithCounts()
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
+
+	// Get all books
+	books, err := app.books.GetAll()
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
+
+	// Get the template data and add the quotes, authors, and books slices
 	data := app.newTemplateData(r)
 	data.Quotes = quotes
+	data.Authors = authors
+	data.Books = books
 
 	// render the home page
 	app.render(w, r, http.StatusOK, "home.go.tmpl", data)
