@@ -38,6 +38,8 @@ type application struct {
 	config        config
 	logger        *slog.Logger
 	quotes        models.QuoteModelInterface
+	authors       models.AuthorModelInterface
+	books         models.BookModelInterface
 	users         models.UserModelInterface
 	templateCache map[string]*template.Template
 	client        *supabase.Client
@@ -137,7 +139,9 @@ func main() {
 	app := &application{
 		config:        cfg,
 		logger:        logger,
-		quotes:        &models.QuoteModel{Client: client, AuthUserID: uuid.Nil},
+		quotes:        &models.QuoteModel{Client: client, AuthClient: authClient, AuthUserID: uuid.Nil},
+		authors:       &models.AuthorModel{Client: client},
+		books:         &models.BookModel{Client: client, AuthUserID: uuid.Nil},
 		users:         &models.UserModel{Client: client, AuthClient: authClient, AuthUserID: uuid.Nil},
 		templateCache: templateCache,
 		client:        client,

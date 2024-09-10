@@ -5,8 +5,8 @@ import "regexp"
 // EmailRX is a regular expression for validating email addresses
 var EmailRX = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
 
-// PhoneRX is a regular expression for validating phone numbers
-var PhoneRX = regexp.MustCompile("^[0-9]{10}$")
+// PhoneRX is a regular expression for validating phone numbers with dashes
+var PhoneRX = regexp.MustCompile("^[0-9]{3}-[0-9]{3}-[0-9]{4}$")
 
 // ValidateSignupForm validates the user signup form
 func ValidateSignupForm(v *Validator, name, email, password string) {

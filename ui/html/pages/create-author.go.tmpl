@@ -1,0 +1,77 @@
+{{define "title"}}Create a New Author{{end}}
+
+{{define "main"}}
+<div class="container flex flex-col w-full sm:max-w-xl md:max-w-2xl items-start justify-start gap-6 min-h-screen py-8 px-4 sm:px-6 lg:px-8">
+    <h1 class="text-3xl font-bold text-gray-800 dark:text-gray-200">Create a New Author</h1>
+    
+    <form action="/author/create" method="POST" class="w-full space-y-6">
+        <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+        
+        <div class="flex flex-col">
+            <label for="name" class="text-lg font-semibold text-gray-800 dark:text-gray-200">Name:</label>
+            {{with .Form.FieldErrors.name}}
+                <p class="text-red-500 text-sm">{{.}}</p>
+            {{end}}
+            <input type="text" id="name" name="name" value="{{.Form.Name}}" class="mt-2 p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+        </div>
+        
+        <div class="flex flex-col">
+            <label for="birth_year" class="text-lg font-semibold text-gray-800 dark:text-gray-200">Birth Year:</label>
+            {{with .Form.FieldErrors.birth_year}}
+                <p class="text-red-500 text-sm">{{.}}</p>
+            {{end}}
+            <input type="number" id="birth_year" name="birth_year" placeholder="1950" value="{{.Form.BirthYear}}" class="mt-2 p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+        </div>
+        
+        <div class="flex flex-col">
+            <label for="birth_calendar_time" class="text-lg font-semibold text-gray-800 dark:text-gray-200">Birth Calendar Time:</label>
+            {{with .Form.FieldErrors.birth_calendar_time}}
+                <p class="text-red-500 text-sm">{{.}}</p>
+            {{end}}
+            <select id="birth_calendar_time" name="birth_calendar_time" class="mt-2 p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+                <option value="A.D." {{if eq .Form.BirthCalendarTime "A.D."}}selected{{end}}>A.D.</option>
+                <option value="B.C." {{if eq .Form.BirthCalendarTime "B.C."}}selected{{end}}>B.C.</option>
+            </select>
+        </div>
+        
+        <div class="flex flex-col">
+            <label for="death_year" class="text-lg font-semibold text-gray-800 dark:text-gray-200">Death Year (if applicable):</label>
+            {{with .Form.FieldErrors.death_year}}
+                <p class="text-red-500 text-sm">{{.}}</p>
+            {{end}}
+            <input type="number" id="death_year" name="death_year" placeholder="2020" value="{{.Form.DeathYear}}" class="mt-2 p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+        </div>
+        
+        <div class="flex flex-col">
+            <label for="death_calendar_time" class="text-lg font-semibold text-gray-800 dark:text-gray-200">Death Calendar Time:</label>
+            {{with .Form.FieldErrors.death_calendar_time}}
+                <p class="text-red-500 text-sm">{{.}}</p>
+            {{end}}
+            <select id="death_calendar_time" name="death_calendar_time" class="mt-2 p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+                <option value="A.D." {{if eq .Form.DeathCalendarTime "A.D."}}selected{{end}}>A.D.</option>
+                <option value="B.C." {{if eq .Form.DeathCalendarTime "B.C."}}selected{{end}}>B.C.</option>
+            </select>
+        </div>
+        
+        <div class="flex flex-col">
+            <label for="bio" class="text-lg font-semibold text-gray-800 dark:text-gray-200">Biography:</label>
+            {{with .Form.FieldErrors.bio}}
+                <p class="text-red-500 text-sm">{{.}}</p>
+            {{end}}
+            <textarea id="bio" name="bio" rows="4" class="mt-2 p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200">{{.Form.Bio}}</textarea>
+        </div>
+        
+        <div class="flex flex-col">
+            <label for="source" class="text-lg font-semibold text-gray-800 dark:text-gray-200">Source (URL):</label>
+            {{with .Form.FieldErrors.source}}
+                <p class="text-red-500 text-sm">{{.}}</p>
+            {{end}}
+            <input type="text" id="source" name="source" value="{{.Form.Source}}" class="mt-2 p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+        </div>
+        
+        <div>
+            <input type="submit" value="Create Author" class="px-4 py-2 bg-black dark:bg-gray-800 hover:bg-gray-700 dark:hover:bg-gray-900 text-white rounded-md cursor-pointer transition-colors duration-200">
+        </div>
+    </form>
+</div>
+{{end}}

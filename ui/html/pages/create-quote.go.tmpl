@@ -7,25 +7,125 @@
     <form action="/quote/create" method="POST" class="w-full space-y-6">
         <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
         
+        <!-- Quote textarea -->
         <div class="flex flex-col">
             <label for="quote" class="text-lg font-semibold text-gray-800 dark:text-gray-200">Quote:</label>
             {{with .Form.FieldErrors.quote}}
                 <p class="text-red-500 text-sm">{{.}}</p>
             {{end}}
-            <textarea id="quote" name="quote" class="mt-2 p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200">{{.Form.Quote}}</textarea>
+            <textarea id="quote" name="quote" rows="8" class="mt-2 p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200">{{.Form.Quote}}</textarea>
         </div>
         
+        <!-- Author selector -->
         <div class="flex flex-col">
-            <label for="author" class="text-lg font-semibold text-gray-800 dark:text-gray-200">Author:</label>
+            <label for="author-selector" class="text-lg font-semibold text-gray-800 dark:text-gray-200">Author:</label>
             {{with .Form.FieldErrors.author}}
                 <p class="text-red-500 text-sm">{{.}}</p>
             {{end}}
-            <input type="text" id="author" name="author" value="{{.Form.Author}}" class="mt-2 p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+            <div class="flex items-center gap-2">
+                <select id="select-author" name="author-selector" class="flex-grow mt-2 p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+                    <option value="">Select an existing author</option>
+                    {{if .Authors}}
+                        {{range .Authors}}
+                            <option value="{{.Author.ID}}" {{if eq .Author.ID $.Form.AuthorID}}selected{{end}}>{{.Author.Name}}</option>
+                        {{end}}
+                    {{else}}
+                        <option value="" disabled>No authors available</option>
+                    {{end}}
+                </select>
+                <button type="button" id="add-new-author" class="mt-2 px-4 py-2 bg-black dark:bg-gray-800 hover:bg-gray-700 dark:hover:bg-gray-900 text-white rounded-md cursor-pointer transition-colors duration-200 text-sm">Add New</button>
+            </div>
         </div>
         
+        <!-- Book selector -->
+        <div class="flex flex-col">
+            <label for="book-selector" class="text-lg font-semibold text-gray-800 dark:text-gray-200">Book:</label>
+            {{with .Form.FieldErrors.book}}
+                <p class="text-red-500 text-sm">{{.}}</p>
+            {{end}}
+            <div class="flex items-center gap-2">
+                <select id="select-book" name="book-selector" class="flex-grow mt-2 p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+                    <option value="">Select an existing book</option>
+                    {{if .Books}}
+                        {{range .Books}}
+                            <option value="{{.ID}}" {{if eq .ID $.Form.BookID}}selected{{end}}>{{.Title}}</option>
+                        {{end}}
+                    {{else}}
+                        <option value="" disabled>No books available</option>
+                    {{end}}
+                </select>
+                <button type="button" id="add-new-book" class="mt-2 px-4 py-2 bg-black dark:bg-gray-800 hover:bg-gray-700 dark:hover:bg-gray-900 text-white rounded-md cursor-pointer transition-colors duration-200 text-sm">Add New</button>
+            </div>
+        </div>
+        
+        <!-- Page Number -->
+        <div class="flex flex-col">
+            <label for="page_number" class="text-lg font-semibold text-gray-800 dark:text-gray-200">Page Number:</label>
+            {{with .Form.FieldErrors.page_number}}
+                <p class="text-red-500 text-sm">{{.}}</p>
+            {{end}}
+            <input type="text" id="page_number" name="page_number" value="{{.Form.PageNumber}}" class="mt-2 p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+        </div>
+
+        <!-- Is Private checkbox -->
+        <div class="flex items-center">
+            <input type="checkbox" id="is_private" name="is_private" {{if .Form.IsPrivate}}checked{{end}} class="mr-2">
+            <label for="is_private" class="text-lg font-semibold text-gray-800 dark:text-gray-200">Private Quote</label>
+        </div>
+        
+        <!-- Submit button -->
         <div>
             <input type="submit" value="Publish Quote" class="px-4 py-2 bg-black dark:bg-gray-800 hover:bg-gray-700 dark:hover:bg-gray-900 text-white rounded-md cursor-pointer transition-colors duration-200">
         </div>
     </form>
+
+    <!-- New Author Dialog -->
+    <dialog id="new-author-dialog" class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 p-6 rounded-lg shadow-xl w-full max-w-md">
+        <h2 class="text-2xl font-bold mb-4">Add New Author</h2>
+        <form id="new-author-form" class="space-y-4">
+            <div class="flex flex-col">
+                <label for="new_author_name" class="text-lg font-semibold">Author Name:</label>
+                <input type="text" id="new_author_name" name="new_author_name" class="mt-2 p-2 border rounded-md">
+            </div>
+            <div class="flex justify-end gap-2">
+                <button type="button" id="cancel-new-author" class="px-4 py-2 bg-gray-300 rounded-md">Cancel</button>
+                <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-md">Add Author</button>
+            </div>
+        </form>
+    </dialog>
+
+    <!-- New Book Dialog -->
+    <dialog id="new-book-dialog" class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 p-6 rounded-lg shadow-xl w-full max-w-md">
+        <h2 class="text-2xl font-bold mb-4">Add New Book</h2>
+        <form id="new-book-form" class="space-y-4">
+            <div class="flex flex-col">
+                <label for="new_book_title" class="text-lg font-semibold">Book Title:</label>
+                <input type="text" id="new_book_title" name="new_book_title" class="mt-2 p-2 border rounded-md">
+            </div>
+            <div class="flex flex-col">
+                <label for="new_book_publish_year" class="text-lg font-semibold">Publish Year:</label>
+                <input type="number" id="new_book_publish_year" name="new_book_publish_year" class="mt-2 p-2 border rounded-md">
+            </div>
+            <div class="flex flex-col">
+                <label for="new_book_calendar_time" class="text-lg font-semibold">Calendar Time:</label>
+                <select id="new_book_calendar_time" name="new_book_calendar_time" class="mt-2 p-2 border rounded-md">
+                    <option value="A.D.">A.D.</option>
+                    <option value="B.C.">B.C.</option>
+                </select>
+            </div>
+            <div class="flex flex-col">
+                <label for="new_book_isbn" class="text-lg font-semibold">ISBN:</label>
+                <input type="text" id="new_book_isbn" name="new_book_isbn" placeholder="9876543210123" class="mt-2 p-2 border rounded-md">
+            </div>
+            <div class="flex flex-col">
+                <label for="new_book_source" class="text-lg font-semibold">Source:</label>
+                <input type="text" id="new_book_source" name="new_book_source" class="mt-2 p-2 border rounded-md">
+            </div>
+            <div class="flex justify-end gap-2">
+                <button type="button" id="cancel-new-book" class="px-4 py-2 bg-gray-300 rounded-md">Cancel</button>
+                <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-md">Add Book</button>
+            </div>
+        </form>
+    </dialog>
 </div>
 {{end}}

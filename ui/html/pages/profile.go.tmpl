@@ -26,7 +26,7 @@
                     <p class="text-gray-600 dark:text-gray-400">{{.CreatedAt | humanDate}}</p>
                 </div>
 
-                {{if eq .ID $.AuthenticatedUserID}}
+                {{if eq .ID $.AuthenticatedUserID}}                    
                     <div class="mt-6">
                         <a href="/user/profile/edit" class="bg-black dark:bg-gray-800 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline hover:bg-gray-700 dark:hover:bg-gray-600 transition duration-300">
                             Edit Profile
@@ -66,16 +66,24 @@
                     </div>
                 {{end}}
             {{else}}
-                <p class="text-lg text-gray-600 dark:text-gray-400 italic">This user hasn't added any quotes yet.</p>
+                {{if eq .User.ID $.AuthenticatedUserID}}
+                    <p class="text-lg text-gray-600 dark:text-gray-400 italic">You haven't added any quotes yet.
+                    <a href="/quote/create" class="text-lg text-gray-600 dark:text-gray-400 italic hover:text-gray-500 dark:hover:text-gray-400 underline hover:underline-none">Add your first quote!</a>
+                    </p>
+                {{else}}
+                    <p class="text-lg text-gray-600 dark:text-gray-400 italic">{{.User.Name}} hasn't added any quotes yet.</p>
+                {{end}}
             {{end}}
         </div>
     </div>
 </div>
 
-<a href="/quote/create" class="fixed bottom-6 right-6 bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-full shadow-lg transition-colors duration-300 flex items-center">
-    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-    </svg>
-    Add Quote
-</a>
+<div class="fixed bottom-6 right-6 flex flex-row gap-4">
+    <a href="/quote/create" class="flex bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-full shadow-lg transition-colors duration-300 flex items-center">
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+        </svg>
+        Add Quote
+    </a>
+</div>
 {{end}}

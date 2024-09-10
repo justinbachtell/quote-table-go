@@ -184,3 +184,73 @@ func InsertTestQuote(db *supabase.Client, quote string, author string) (int, err
 
 	return int(insertedQuote[0].ID), nil
 }
+
+// Insert a test author into the database
+func InsertTestAuthor(db *supabase.Client, name string) (int, error) {
+	// Create a map to hold the author data
+	data := map[string]interface{}{
+		"name": name,
+	}
+
+	// Insert the author into the database
+	response, count, err := db.From("authors").Insert(data, false, "", "", "").ExecuteString()
+	if err != nil {
+		log.Printf("Error inserting author: %v", err)
+		return 0, err
+	} else if count > 1 {
+		log.Printf("Unexpected count > 1 for insert")
+		return 0, errors.New("unexpected count > 1 for insert")
+	}
+
+	// Parse the JSON response to extract the ID
+	var insertedAuthor []Author
+	err = json.NewDecoder(strings.NewReader(string(response))).Decode(&insertedAuthor)
+	if err != nil {
+		log.Printf("Error parsing JSON response: %v", err)
+		return 0, err
+	}
+
+	// Check if the author was successfully inserted
+	if len(insertedAuthor) == 0 {
+		log.Printf("No authors returned in response")
+		return 0, errors.New("no authors returned in response")
+	}
+
+	// Return the ID of the inserted author
+	return int(insertedAuthor[0].ID), nil
+}
+
+// Insert a test book into the database
+func InsertTestBook(db *supabase.Client, title string) (int, error) {
+	// Create a map to hold the book data
+	data := map[string]interface{}{
+		"title": title,
+	}
+
+	// Insert the book into the database
+	response, count, err := db.From("books").Insert(data, false, "", "", "").ExecuteString()
+	if err != nil {
+		log.Printf("Error inserting book: %v", err)
+		return 0, err
+	} else if count > 1 {
+		log.Printf("Unexpected count > 1 for insert")
+		return 0, errors.New("unexpected count > 1 for insert")
+	}
+
+	// Parse the JSON response to extract the ID
+	var insertedBook []Book
+	err = json.NewDecoder(strings.NewReader(string(response))).Decode(&insertedBook)
+	if err != nil {
+		log.Printf("Error parsing JSON response: %v", err)
+		return 0, err
+	}
+
+	// Check if the book was successfully inserted
+	if len(insertedBook) == 0 {
+		log.Printf("No books returned in response")
+		return 0, errors.New("no books returned in response")
+	}
+
+	// Return the ID of the inserted book
+	return int(insertedBook[0].ID), nil
+}

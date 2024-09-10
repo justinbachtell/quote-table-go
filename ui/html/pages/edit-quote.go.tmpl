@@ -17,11 +17,85 @@
         </div>
         
         <div class="flex flex-col">
-            <label for="author" class="text-lg font-semibold text-gray-800 dark:text-gray-200">Author:</label>
+            <label for="author-selector" class="text-lg font-semibold text-gray-800 dark:text-gray-200">Author:</label>
             {{with .Form.FieldErrors.author}}
                 <p class="text-red-500 text-sm">{{.}}</p>
             {{end}}
-            <input type="text" id="author" name="author" value="{{.Form.Author}}" class="mt-2 p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+            <div class="flex items-center gap-2">
+                <select id="select-author" name="author-selector" class="flex-grow mt-2 p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+                    {{if not .Form.AuthorID}}
+                        <option value="">Select an existing author</option>
+                    {{end}}
+                    <option value="new">Create a new author</option>
+                    {{if .Authors}}
+                        {{range .Authors}}
+                            <option value="{{.Author.ID}}" {{if eq .Author.ID $.Form.AuthorID}}selected{{end}}>{{.Author.Name}}</option>
+                        {{end}}
+                    {{else}}
+                        <option value="" disabled>No authors available</option>
+                    {{end}}
+                </select>
+            </div>
+        </div>
+        
+        <div id="new-author-input" class="flex flex-col hidden">
+            <label for="new_author_name" class="text-lg font-semibold text-gray-800 dark:text-gray-200">New author name:</label>
+            <input type="text" id="new_author_name" name="new_author_name" value="{{.Form.NewAuthorName}}" class="mt-2 p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+        </div>
+        
+        <div class="flex flex-col">
+            <label for="book-selector" class="text-lg font-semibold text-gray-800 dark:text-gray-200">Book:</label>
+            {{with .Form.FieldErrors.book}}
+                <p class="text-red-500 text-sm">{{.}}</p>
+            {{end}}
+            <div class="flex items-center gap-2">
+                <select id="select-book" name="book-selector" class="flex-grow mt-2 p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+                    {{if not .Form.BookID}}
+                        <option value="">Select an existing book</option>
+                    {{end}}
+                    <option value="new">Create a new book</option>
+                    {{if .Books}}
+                        {{range .Books}}
+                            <option value="{{.ID}}" {{if eq .ID $.Form.BookID}}selected{{end}}>{{.Title}}</option>
+                        {{end}}
+                    {{else}}
+                        <option value="" disabled>No books available</option>
+                    {{end}}
+                </select>
+            </div>
+        </div>
+        
+        <div id="new-book-input" class="flex flex-col hidden">
+            <label for="new_book_title" class="text-lg font-semibold text-gray-800 dark:text-gray-200">New book title:</label>
+            <input type="text" id="new_book_title" name="new_book_title" value="{{.Form.NewBookTitle}}" class="mt-2 p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+            
+            <label for="new_book_publish_year" class="text-lg font-semibold text-gray-800 dark:text-gray-200">Publish Year:</label>
+            <input type="number" id="new_book_publish_year" name="new_book_publish_year" value="{{.Form.NewBookPublishYear}}" class="mt-2 p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+            
+            <label for="new_book_calendar_time" class="text-lg font-semibold text-gray-800 dark:text-gray-200">Calendar Time:</label>
+            <select id="new_book_calendar_time" name="new_book_calendar_time" class="mt-2 p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+                <option value="A.D." {{if eq .Form.NewBookCalendarTime "A.D."}}selected{{end}}>A.D.</option>
+                <option value="B.C." {{if eq .Form.NewBookCalendarTime "B.C."}}selected{{end}}>B.C.</option>
+            </select>
+            
+            <label for="new_book_isbn" class="text-lg font-semibold text-gray-800 dark:text-gray-200">ISBN (number only, no dashes):</label>
+            <input type="text" id="new_book_isbn" name="new_book_isbn" placeholder="9876543210123" value="{{.Form.NewBookISBN}}" class="mt-2 p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+            
+            <label for="new_book_source" class="text-lg font-semibold text-gray-800 dark:text-gray-200">Source:</label>
+            <input type="text" id="new_book_source" name="new_book_source" value="{{.Form.NewBookSource}}" class="mt-2 p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+        </div>
+        
+        <div class="flex flex-col">
+            <label for="page_number" class="text-lg font-semibold text-gray-800 dark:text-gray-200">Page Number:</label>
+            {{with .Form.FieldErrors.page_number}}
+                <p class="text-red-500 text-sm">{{.}}</p>
+            {{end}}
+            <input type="text" id="page_number" name="page_number" value="{{.Form.PageNumber}}" class="mt-2 p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+        </div>
+
+        <div class="flex items-center">
+            <input type="checkbox" id="is_private" name="is_private" {{if .Form.IsPrivate}}checked{{end}} class="mr-2">
+            <label for="is_private" class="text-lg font-semibold text-gray-800 dark:text-gray-200">Private Quote</label>
         </div>
         
         <div class="flex md:flex-row flex-col gap-4 md:justify-between">
