@@ -14,7 +14,7 @@ require (
 	github.com/lib/pq v1.10.9
 	github.com/supabase-community/postgrest-go v0.0.11
 	github.com/supabase-community/supabase-go v0.0.4
-	golang.org/x/crypto v0.26.0
+	golang.org/x/crypto v0.31.0
 )
 
 require (
